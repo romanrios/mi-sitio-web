@@ -8,6 +8,13 @@
       "when": 1788305566171,
       "tag": "0000_naive_harry_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788309584072,
+      "tag": "0001_cultured_otto_octavius",
+      "breakpoints": true
     }
   ]
 }
