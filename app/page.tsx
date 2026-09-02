@@ -1,3 +1,4 @@
+import CardsSection from "@/app/cards-section";
 import MensajesApp from "@/app/mensajes-app";
 import { auth, signIn, signOut } from "@/auth";
 
@@ -44,6 +45,8 @@ export default async function Home() {
           </form>
         )}
       </div>
+
+      <CardsSection />
 
       <MensajesApp estaLogueado={!!session?.user} />
     </main>
