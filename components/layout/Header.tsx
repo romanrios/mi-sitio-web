@@ -1,10 +1,11 @@
 import { signIn, signOut } from "@/auth";
+import { site } from "@/content/site";
 import type { Session } from "next-auth";
 
 export default function Header({ session }: { session: Session | null }) {
   return (
     <div className="w-full max-w-md flex justify-between items-center mb-8">
-      <h1 className="text-2xl font-bold text-gray-800">Mi Sitio Web</h1>
+      <h1 className="text-2xl font-bold text-gray-800">{site.name}</h1>
 
       {session?.user ? (
         <form

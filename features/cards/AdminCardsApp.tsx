@@ -1,8 +1,9 @@
 "use client";
 
+import Card from "@/components/ui/Card";
 import { useEffect, useState } from "react";
 
-type Card = {
+type CardData = {
   id: number;
   titulo: string;
   descripcion: string;
@@ -12,7 +13,7 @@ type Card = {
 };
 
 export default function AdminCardsApp() {
-  const [cardsList, setCardsList] = useState<Card[]>([]);
+  const [cardsList, setCardsList] = useState<CardData[]>([]);
   const [cargando, setCargando] = useState(true);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [titulo, setTitulo] = useState("");
@@ -47,7 +48,7 @@ export default function AdminCardsApp() {
     setError("");
   }
 
-  function cargarEnFormulario(card: Card) {
+  function cargarEnFormulario(card: CardData) {
     setEditandoId(card.id);
     setTitulo(card.titulo);
     setDescripcion(card.descripcion);
@@ -97,10 +98,8 @@ export default function AdminCardsApp() {
         {editandoId ? `Editando card #${editandoId}` : "Nueva card"}
       </h2>
 
-      <form
-        onSubmit={guardar}
-        className="bg-white border border-gray-200 rounded-lg p-4 mb-8 space-y-3"
-      >
+      <form onSubmit={guardar}>
+        <Card className="p-4 mb-8 space-y-3">
         <div>
           <label className="block text-sm text-gray-600 mb-1">Título</label>
           <input
@@ -171,6 +170,7 @@ export default function AdminCardsApp() {
             </button>
           )}
         </div>
+        </Card>
       </form>
 
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -184,9 +184,9 @@ export default function AdminCardsApp() {
 
       <div className="space-y-2">
         {cardsList.map((card) => (
-          <div
+          <Card
             key={card.id}
-            className="bg-white border border-gray-200 rounded-md p-3 flex items-center gap-3"
+            className="rounded-md p-3 flex items-center gap-3"
           >
             <img
               src={card.imagenUrl}
@@ -216,7 +216,7 @@ export default function AdminCardsApp() {
                 Borrar
               </button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
