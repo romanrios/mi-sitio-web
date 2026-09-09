@@ -1,5 +1,6 @@
 import { db } from "@/app/db";
 import { cards } from "@/app/db/schema";
+import Card from "@/components/ui/Card";
 import { asc } from "drizzle-orm";
 
 export default async function CardsSection() {
@@ -13,9 +14,9 @@ export default async function CardsSection() {
     <section className="w-full max-w-4xl mt-4 mb-16">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {todasLasCards.map((card) => (
-          <div
+          <Card
             key={card.id}
-            className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col"
+            className="overflow-hidden flex flex-col"
           >
             <img
               src={card.imagenUrl}
@@ -30,7 +31,7 @@ export default async function CardsSection() {
                 {card.descripcion}
               </p>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </section>

@@ -30,7 +30,12 @@ export default function AdminCardsApp() {
   }
 
   useEffect(() => {
-    cargarCards();
+    fetch("/api/cards")
+      .then((res) => res.json())
+      .then((data) => {
+        setCardsList(data);
+        setCargando(false);
+      });
   }, []);
 
   function limpiarFormulario() {

@@ -1,5 +1,6 @@
 "use client";
 
+import Card from "@/components/ui/Card";
 import { useEffect, useState } from "react";
 
 type Mensaje = {
@@ -28,7 +29,12 @@ export default function MensajesApp({
   }
 
   useEffect(() => {
-    cargarMensajes();
+    fetch("/api/mensajes")
+      .then((res) => res.json())
+      .then((data) => {
+        setMensajes(data);
+        setCargando(false);
+      });
   }, []);
 
   async function enviarMensaje(e: React.FormEvent) {
@@ -91,16 +97,13 @@ export default function MensajesApp({
           <p className="text-gray-500 text-center">No hay mensajes aún.</p>
         )}
         {mensajes.map((m) => (
-          <div
-            key={m.id}
-            className="bg-white border border-gray-200 rounded-md px-4 py-3 shadow-sm"
-          >
+          <Card key={m.id} className="rounded-md px-4 py-3">
             <p className="text-gray-800">{m.contenido}</p>
             <p className="text-xs text-gray-400 mt-1">
               {m.autor ?? "Anónimo"} ·{" "}
               {new Date(m.creadoEn).toLocaleString()}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import AdminCardsApp from "@/app/admin/admin-cards-app";
+import AdminCardsApp from "@/features/cards/AdminCardsApp";
 import { auth, signIn } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 
