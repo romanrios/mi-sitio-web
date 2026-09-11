@@ -94,25 +94,25 @@ export default function AdminCardsApp() {
 
   return (
     <div className="w-full max-w-2xl">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+      <h2 className="text-lg font-semibold text-foreground mb-4">
         {editandoId ? `Editando card #${editandoId}` : "Nueva card"}
       </h2>
 
       <form onSubmit={guardar}>
         <Card className="p-4 mb-8 space-y-3">
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Título</label>
+          <label className="block text-sm text-muted mb-1">Título</label>
           <input
             type="text"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+            className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-600 mb-1">
+          <label className="block text-sm text-muted mb-1">
             Descripción
           </label>
           <textarea
@@ -120,12 +120,12 @@ export default function AdminCardsApp() {
             onChange={(e) => setDescripcion(e.target.value)}
             required
             rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+            className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-600 mb-1">
+          <label className="block text-sm text-muted mb-1">
             URL de imagen
           </label>
           <input
@@ -134,29 +134,29 @@ export default function AdminCardsApp() {
             onChange={(e) => setImagenUrl(e.target.value)}
             required
             placeholder="https://..."
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+            className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-600 mb-1">
+          <label className="block text-sm text-muted mb-1">
             Orden (menor número aparece primero)
           </label>
           <input
             type="number"
             value={orden}
             onChange={(e) => setOrden(parseInt(e.target.value, 10) || 0)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+            className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground"
           />
         </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-error text-sm">{error}</p>}
 
         <div className="flex gap-2">
           <button
             type="submit"
             disabled={guardando}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50"
           >
             {guardando ? "Guardando..." : editandoId ? "Actualizar" : "Crear"}
           </button>
@@ -164,7 +164,7 @@ export default function AdminCardsApp() {
             <button
               type="button"
               onClick={limpiarFormulario}
-              className="text-gray-600 px-4 py-2 rounded-md hover:bg-gray-100"
+              className="text-muted px-4 py-2 rounded-md hover:bg-surface-hover"
             >
               Cancelar
             </button>
@@ -173,13 +173,13 @@ export default function AdminCardsApp() {
         </Card>
       </form>
 
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+      <h2 className="text-lg font-semibold text-foreground mb-4">
         Cards existentes
       </h2>
 
-      {cargando && <p className="text-gray-500">Cargando...</p>}
+      {cargando && <p className="text-muted-subtle">Cargando...</p>}
       {!cargando && cardsList.length === 0 && (
-        <p className="text-gray-500">No hay cards creadas aún.</p>
+        <p className="text-muted-subtle">No hay cards creadas aún.</p>
       )}
 
       <div className="space-y-2">
@@ -194,24 +194,24 @@ export default function AdminCardsApp() {
               className="w-16 h-16 object-cover rounded-md shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800 truncate">
+              <p className="font-medium text-foreground truncate">
                 {card.titulo}
               </p>
-              <p className="text-sm text-gray-500 truncate">
+              <p className="text-sm text-muted-subtle truncate">
                 {card.descripcion}
               </p>
-              <p className="text-xs text-gray-400">Orden: {card.orden}</p>
+              <p className="text-xs text-muted-faint">Orden: {card.orden}</p>
             </div>
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => cargarEnFormulario(card)}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-accent hover:underline"
               >
                 Editar
               </button>
               <button
                 onClick={() => borrar(card.id)}
-                className="text-sm text-red-600 hover:underline"
+                className="text-sm text-error hover:underline"
               >
                 Borrar
               </button>

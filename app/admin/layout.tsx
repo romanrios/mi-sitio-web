@@ -10,7 +10,7 @@ export default async function AdminLayout({
   if (!session?.user) {
     return (
       <Container className="justify-center">
-        <p className="text-gray-600 mb-4">
+        <p className="text-muted mb-4">
           Debes iniciar sesión para acceder al panel de administración.
         </p>
         <form
@@ -21,7 +21,7 @@ export default async function AdminLayout({
         >
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover"
           >
             Iniciar sesión con Google
           </button>
@@ -33,7 +33,7 @@ export default async function AdminLayout({
   if (!isAdmin(session.user.email)) {
     return (
       <Container className="justify-center">
-        <p className="text-gray-600">
+        <p className="text-muted">
           No tienes permisos para acceder a esta sección.
         </p>
       </Container>

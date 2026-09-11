@@ -71,35 +71,35 @@ export default function MensajesApp({
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             placeholder="Escribe un mensaje..."
-            className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground placeholder:text-muted-faint focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             type="submit"
             disabled={enviando}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50"
           >
             {enviando ? "..." : "Enviar"}
           </button>
         </form>
       ) : (
-        <p className="text-gray-500 text-center mb-2 text-sm">
+        <p className="text-muted-subtle text-center mb-2 text-sm">
           Inicia sesión para publicar un mensaje.
         </p>
       )}
 
       {error && (
-        <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
+        <p className="text-error text-sm mb-4 text-center">{error}</p>
       )}
 
       <div className="space-y-2 mt-6">
-        {cargando && <p className="text-gray-500 text-center">Cargando...</p>}
+        {cargando && <p className="text-muted-subtle text-center">Cargando...</p>}
         {!cargando && mensajes.length === 0 && (
-          <p className="text-gray-500 text-center">No hay mensajes aún.</p>
+          <p className="text-muted-subtle text-center">No hay mensajes aún.</p>
         )}
         {mensajes.map((m) => (
           <Card key={m.id} className="rounded-md px-4 py-3">
-            <p className="text-gray-800">{m.contenido}</p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-foreground">{m.contenido}</p>
+            <p className="text-xs text-muted-faint mt-1">
               {m.autor ?? "Anónimo"} ·{" "}
               {new Date(m.creadoEn).toLocaleString()}
             </p>

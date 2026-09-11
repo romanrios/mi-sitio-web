@@ -5,7 +5,7 @@ type CardProps = {
 
 export default function Card({ children, className }: CardProps) {
   const classes = [
-    "bg-white border border-gray-200 rounded-lg shadow-sm",
+    "bg-surface border border-border rounded-lg shadow-sm",
     className,
   ]
     .filter(Boolean)

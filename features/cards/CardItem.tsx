@@ -19,8 +19,8 @@ export default function CardItem({
         className="w-full h-40 object-cover"
       />
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-semibold text-gray-800 mb-1">{titulo}</h3>
-        <p className="text-sm text-gray-600 flex-1">{descripcion}</p>
+        <h3 className="font-semibold text-foreground mb-1">{titulo}</h3>
+        <p className="text-sm text-muted flex-1">{descripcion}</p>
       </div>
     </Card>
   );

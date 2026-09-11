@@ -8,7 +8,7 @@ export default function Container({
   className = "py-16",
 }: ContainerProps) {
   const classes = [
-    "min-h-screen bg-gray-50 flex flex-col items-center px-4",
+    "min-h-screen bg-background flex flex-col items-center px-4",
     className,
   ]
     .filter(Boolean)
