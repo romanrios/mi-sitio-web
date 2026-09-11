@@ -1,9 +1,10 @@
-import Container from "@/components/ui/Container";
+import { auth } from "@/auth";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import Container from "@/components/ui/Container";
 import CardsSection from "@/features/cards/CardsSection";
+import ExperienciaSection from "@/features/experiencia/ExperienciaSection";
 import MensajesApp from "@/features/mensajes/MensajesApp";
-import { auth } from "@/auth";
 
 export default async function Home() {
   const session = await auth();
@@ -12,8 +13,10 @@ export default async function Home() {
     <Container>
       <Header session={session} />
       <CardsSection />
+      <ExperienciaSection />
       <MensajesApp estaLogueado={!!session?.user} />
       <Footer />
     </Container>
   );
 }
+
