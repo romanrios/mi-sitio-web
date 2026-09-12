@@ -1,4 +1,4 @@
 export const site = {
-  name: "Mi Sitio Web",
-  description: "Sitio web personal con cards y mensajes.",
+  name: "Román Ríos",
+  description: "Desarrollo de Software y Diseño de Comunicación Visual.",
 };

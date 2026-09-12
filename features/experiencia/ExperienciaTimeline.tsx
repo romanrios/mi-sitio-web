@@ -62,11 +62,10 @@ export default function ExperienciaTimeline({
             <button
               key={f.id}
               onClick={() => setFiltro(f.id)}
-              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors shrink-0 ${
-                isSelected
-                  ? "bg-accent text-accent-foreground shadow-sm"
-                  : "bg-surface border border-border text-muted hover:text-foreground hover:bg-surface-hover"
-              }`}
+              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors shrink-0 ${isSelected
+                ? "bg-accent text-accent-foreground shadow-sm"
+                : "bg-surface border border-border text-muted hover:text-foreground hover:bg-surface-hover"
+                }`}
             >
               {f.label}
             </button>
@@ -141,9 +140,6 @@ export default function ExperienciaTimeline({
                 {/* Cargos / Posiciones agrupadas */}
                 {exp.posiciones && exp.posiciones.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-border space-y-3">
-                    <h4 className="text-xs font-semibold text-muted-subtle uppercase tracking-wider">
-                      Cargos y trayectorias
-                    </h4>
 
                     <div className="relative pl-3.5 border-l border-border-strong space-y-3">
                       {exp.posiciones.map((pos, idx) => (

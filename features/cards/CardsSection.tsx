@@ -5,7 +5,20 @@ import { CATEGORIAS } from "@/lib/categorias";
 import { asc } from "drizzle-orm";
 
 export default async function CardsSection() {
-  const todasLasCards = await db.select().from(cards).orderBy(asc(cards.orden));
+  const todasLasCards = await db.query.cards.findMany({
+    orderBy: [asc(cards.orden)],
+    with: {
+      galeria: {
+        orderBy: (galeria, { asc }) => [asc(galeria.orden)],
+      },
+      tags: {
+        orderBy: (tags, { asc }) => [asc(tags.orden)],
+      },
+      enlaces: {
+        orderBy: (enlaces, { asc }) => [asc(enlaces.orden)],
+      },
+    },
+  });
 
   if (todasLasCards.length === 0) {
     return null;
@@ -34,6 +47,9 @@ export default async function CardsSection() {
                 titulo={card.titulo}
                 descripcion={card.descripcion}
                 imagenUrl={card.imagenUrl}
+                galeria={card.galeria}
+                tags={card.tags}
+                enlaces={card.enlaces}
               />
             ))}
           </div>
@@ -42,4 +58,3 @@ export default async function CardsSection() {
     </section>
   );
 }
-
