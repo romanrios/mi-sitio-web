@@ -2,11 +2,11 @@
 
 import Card from "@/components/ui/Card";
 import {
-    ExperienciaData,
-    formatearPeriodo,
-    TIPO_LABELS,
-    TipoExperiencia,
-    TIPOS_EXPERIENCIA,
+  ExperienciaData,
+  formatearPeriodo,
+  TIPO_LABELS,
+  TipoExperiencia,
+  TIPOS_EXPERIENCIA,
 } from "@/lib/experiencias-utils";
 import { useEffect, useState } from "react";
 
@@ -16,7 +16,13 @@ type PosicionFormItem = {
   fechaInicio: string;
   fechaFin: string;
   actualmente: boolean;
+  soloAnioInicio?: boolean;
+  soloAnioFin?: boolean;
 };
+
+function esSoloAnio(fecha: string | null | undefined): boolean {
+  return Boolean(fecha && /^\d{4}$/.test(fecha.trim()));
+}
 
 export default function AdminExperienciaApp() {
   const [experiencias, setExperiencias] = useState<ExperienciaData[]>([]);
@@ -30,6 +36,8 @@ export default function AdminExperienciaApp() {
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [actualmente, setActualmente] = useState(false);
+  const [soloAnioInicio, setSoloAnioInicio] = useState(false);
+  const [soloAnioFin, setSoloAnioFin] = useState(false);
 
   // Cargos / Posiciones
   const [posiciones, setPosiciones] = useState<PosicionFormItem[]>([]);
@@ -72,6 +80,8 @@ export default function AdminExperienciaApp() {
     setFechaInicio("");
     setFechaFin("");
     setActualmente(false);
+    setSoloAnioInicio(false);
+    setSoloAnioFin(false);
     setPosiciones([]);
     setError("");
   }
@@ -84,6 +94,8 @@ export default function AdminExperienciaApp() {
     setFechaInicio(exp.fechaInicio);
     setFechaFin(exp.fechaFin ?? "");
     setActualmente(exp.actualmente);
+    setSoloAnioInicio(esSoloAnio(exp.fechaInicio));
+    setSoloAnioFin(esSoloAnio(exp.fechaFin));
     setPosiciones(
       (exp.posiciones ?? []).map((p) => ({
         id: p.id,
@@ -91,6 +103,8 @@ export default function AdminExperienciaApp() {
         fechaInicio: p.fechaInicio,
         fechaFin: p.fechaFin ?? "",
         actualmente: p.actualmente,
+        soloAnioInicio: esSoloAnio(p.fechaInicio),
+        soloAnioFin: esSoloAnio(p.fechaFin),
       }))
     );
     setError("");
@@ -105,6 +119,8 @@ export default function AdminExperienciaApp() {
         fechaInicio: "",
         fechaFin: "",
         actualmente: false,
+        soloAnioInicio: false,
+        soloAnioFin: false,
       },
     ]);
   }
@@ -145,6 +161,18 @@ export default function AdminExperienciaApp() {
       return;
     }
 
+    if (soloAnioInicio && !/^\d{4}$/.test(fechaInicio)) {
+      setError("El año de inicio debe tener 4 dígitos (ej: 2023).");
+      setGuardando(false);
+      return;
+    }
+
+    if (!actualmente && fechaFin && soloAnioFin && !/^\d{4}$/.test(fechaFin)) {
+      setError("El año de finalización debe tener 4 dígitos (ej: 2024).");
+      setGuardando(false);
+      return;
+    }
+
     // Validar cargos si existen
     for (let i = 0; i < posiciones.length; i++) {
       const pos = posiciones[i];
@@ -155,6 +183,25 @@ export default function AdminExperienciaApp() {
       }
       if (!pos.fechaInicio) {
         setError(`El cargo #${i + 1} necesita una fecha de inicio.`);
+        setGuardando(false);
+        return;
+      }
+      if (pos.soloAnioInicio && !/^\d{4}$/.test(pos.fechaInicio)) {
+        setError(
+          `El año de inicio del cargo #${i + 1} debe tener 4 dígitos (ej: 2023).`
+        );
+        setGuardando(false);
+        return;
+      }
+      if (
+        !pos.actualmente &&
+        pos.fechaFin &&
+        pos.soloAnioFin &&
+        !/^\d{4}$/.test(pos.fechaFin)
+      ) {
+        setError(
+          `El año de fin del cargo #${i + 1} debe tener 4 dígitos (ej: 2024).`
+        );
         setGuardando(false);
         return;
       }
@@ -312,16 +359,48 @@ export default function AdminExperienciaApp() {
           {/* Período general */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-muted mb-1 font-medium">
-                Fecha de inicio
-              </label>
-              <input
-                type="month"
-                value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
-                required
-                className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm text-muted font-medium">
+                  Fecha de inicio
+                </label>
+                <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={soloAnioInicio}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setSoloAnioInicio(checked);
+                      if (checked && fechaInicio.includes("-")) {
+                        setFechaInicio(fechaInicio.slice(0, 4));
+                      } else if (!checked && /^\d{4}$/.test(fechaInicio)) {
+                        setFechaInicio(`${fechaInicio}-01`);
+                      }
+                    }}
+                    className="rounded border-border-strong text-accent focus:ring-ring"
+                  />
+                  Solo año
+                </label>
+              </div>
+              {soloAnioInicio ? (
+                <input
+                  type="number"
+                  min="1900"
+                  max="2100"
+                  placeholder="AAAA (ej: 2023)"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value.slice(0, 4))}
+                  required
+                  className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              ) : (
+                <input
+                  type="month"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  required
+                  className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              )}
             </div>
 
             <div>
@@ -329,28 +408,64 @@ export default function AdminExperienciaApp() {
                 <label className="text-sm text-muted font-medium">
                   Fecha de finalización
                 </label>
-                <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={actualmente}
-                    onChange={(e) => {
-                      setActualmente(e.target.checked);
-                      if (e.target.checked) setFechaFin("");
-                    }}
-                    className="rounded border-border-strong text-accent focus:ring-ring"
-                  />
-                  Actualmente en curso
-                </label>
+                <div className="flex items-center gap-3">
+                  {!actualmente && (
+                    <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={soloAnioFin}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setSoloAnioFin(checked);
+                          if (checked && fechaFin.includes("-")) {
+                            setFechaFin(fechaFin.slice(0, 4));
+                          } else if (!checked && /^\d{4}$/.test(fechaFin)) {
+                            setFechaFin(`${fechaFin}-01`);
+                          }
+                        }}
+                        className="rounded border-border-strong text-accent focus:ring-ring"
+                      />
+                      Solo año
+                    </label>
+                  )}
+                  <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={actualmente}
+                      onChange={(e) => {
+                        setActualmente(e.target.checked);
+                        if (e.target.checked) setFechaFin("");
+                      }}
+                      className="rounded border-border-strong text-accent focus:ring-ring"
+                    />
+                    Actualmente en curso
+                  </label>
+                </div>
               </div>
-              <input
-                type="month"
-                value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
-                disabled={actualmente}
-                className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                  actualmente ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              />
+              {soloAnioFin ? (
+                <input
+                  type="number"
+                  min="1900"
+                  max="2100"
+                  placeholder="AAAA (ej: 2024)"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value.slice(0, 4))}
+                  disabled={actualmente}
+                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                    actualmente ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                />
+              ) : (
+                <input
+                  type="month"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  disabled={actualmente}
+                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                    actualmente ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                />
+              )}
             </div>
           </div>
 
@@ -410,58 +525,154 @@ export default function AdminExperienciaApp() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-muted mb-1">
-                          Inicio
-                        </label>
-                        <input
-                          type="month"
-                          value={pos.fechaInicio}
-                          onChange={(e) =>
-                            actualizarPosicion(
-                              index,
-                              "fechaInicio",
-                              e.target.value
-                            )
-                          }
-                          required
-                          className="w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-xs text-muted">
+                            Inicio
+                          </label>
+                          <label className="flex items-center gap-1 text-[11px] text-muted cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={pos.soloAnioInicio ?? false}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                actualizarPosicion(index, "soloAnioInicio", checked);
+                                if (checked && pos.fechaInicio.includes("-")) {
+                                  actualizarPosicion(
+                                    index,
+                                    "fechaInicio",
+                                    pos.fechaInicio.slice(0, 4)
+                                  );
+                                } else if (!checked && /^\d{4}$/.test(pos.fechaInicio)) {
+                                  actualizarPosicion(
+                                    index,
+                                    "fechaInicio",
+                                    `${pos.fechaInicio}-01`
+                                  );
+                                }
+                              }}
+                              className="rounded border-border-strong text-accent focus:ring-ring"
+                            />
+                            Solo año
+                          </label>
+                        </div>
+                        {pos.soloAnioInicio ? (
+                          <input
+                            type="number"
+                            min="1900"
+                            max="2100"
+                            placeholder="AAAA (ej: 2023)"
+                            value={pos.fechaInicio}
+                            onChange={(e) =>
+                              actualizarPosicion(
+                                index,
+                                "fechaInicio",
+                                e.target.value.slice(0, 4)
+                              )
+                            }
+                            required
+                            className="w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        ) : (
+                          <input
+                            type="month"
+                            value={pos.fechaInicio}
+                            onChange={(e) =>
+                              actualizarPosicion(
+                                index,
+                                "fechaInicio",
+                                e.target.value
+                              )
+                            }
+                            required
+                            className="w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        )}
                       </div>
 
                       <div>
                         <div className="flex justify-between items-center mb-1">
                           <label className="text-xs text-muted">Fin</label>
-                          <label className="flex items-center gap-1 text-[11px] text-muted cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={pos.actualmente}
-                              onChange={(e) =>
-                                actualizarPosicion(
-                                  index,
-                                  "actualmente",
-                                  e.target.checked
-                                )
-                              }
-                              className="rounded border-border-strong text-accent focus:ring-ring"
-                            />
-                            En curso
-                          </label>
+                          <div className="flex items-center gap-2">
+                            {!pos.actualmente && (
+                              <label className="flex items-center gap-1 text-[11px] text-muted cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={pos.soloAnioFin ?? false}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    actualizarPosicion(index, "soloAnioFin", checked);
+                                    if (checked && pos.fechaFin.includes("-")) {
+                                      actualizarPosicion(
+                                        index,
+                                        "fechaFin",
+                                        pos.fechaFin.slice(0, 4)
+                                      );
+                                    } else if (!checked && /^\d{4}$/.test(pos.fechaFin)) {
+                                      actualizarPosicion(
+                                        index,
+                                        "fechaFin",
+                                        `${pos.fechaFin}-01`
+                                      );
+                                    }
+                                  }}
+                                  className="rounded border-border-strong text-accent focus:ring-ring"
+                                />
+                                Solo año
+                              </label>
+                            )}
+                            <label className="flex items-center gap-1 text-[11px] text-muted cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={pos.actualmente}
+                                onChange={(e) =>
+                                  actualizarPosicion(
+                                    index,
+                                    "actualmente",
+                                    e.target.checked
+                                  )
+                                }
+                                className="rounded border-border-strong text-accent focus:ring-ring"
+                              />
+                              En curso
+                            </label>
+                          </div>
                         </div>
-                        <input
-                          type="month"
-                          value={pos.fechaFin}
-                          onChange={(e) =>
-                            actualizarPosicion(
-                              index,
-                              "fechaFin",
-                              e.target.value
-                            )
-                          }
-                          disabled={pos.actualmente}
-                          className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                            pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
-                          }`}
-                        />
+                        {pos.soloAnioFin ? (
+                          <input
+                            type="number"
+                            min="1900"
+                            max="2100"
+                            placeholder="AAAA (ej: 2024)"
+                            value={pos.fechaFin}
+                            onChange={(e) =>
+                              actualizarPosicion(
+                                index,
+                                "fechaFin",
+                                e.target.value.slice(0, 4)
+                              )
+                            }
+                            disabled={pos.actualmente}
+                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                              pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
+                          />
+                        ) : (
+                          <input
+                            type="month"
+                            value={pos.fechaFin}
+                            onChange={(e) =>
+                              actualizarPosicion(
+                                index,
+                                "fechaFin",
+                                e.target.value
+                              )
+                            }
+                            disabled={pos.actualmente}
+                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                              pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

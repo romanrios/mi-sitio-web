@@ -53,9 +53,16 @@ const MESES_ES = [
 export function formatearFecha(fecha: string | null | undefined): string {
   if (!fecha) return "";
 
+  const trimmed = fecha.trim();
+
+  // Si es solo año "YYYY" (4 dígitos exactos), devolver únicamente el año
+  if (/^\d{4}$/.test(trimmed)) {
+    return trimmed;
+  }
+
   // Espera formato "YYYY-MM" o "YYYY-MM-DD"
-  const match = fecha.match(/^(\d{4})-(\d{2})/);
-  if (!match) return fecha;
+  const match = trimmed.match(/^(\d{4})-(\d{2})/);
+  if (!match) return trimmed;
 
   const anio = match[1];
   const mesIndex = parseInt(match[2], 10) - 1;
@@ -64,7 +71,7 @@ export function formatearFecha(fecha: string | null | undefined): string {
     return `${MESES_ES[mesIndex]} ${anio}`;
   }
 
-  return fecha;
+  return trimmed;
 }
 
 export function formatearPeriodo(
@@ -86,6 +93,14 @@ export function formatearPeriodo(
   return inicio;
 }
 
+function normalizarFecha(f: string, esFin = false): string {
+  const trimmed = f.trim();
+  if (/^\d{4}$/.test(trimmed)) {
+    return esFin ? `${trimmed}-12` : `${trimmed}-01`;
+  }
+  return trimmed.slice(0, 7);
+}
+
 export function ordenarPosiciones(posiciones: PosicionData[]): PosicionData[] {
   return [...posiciones].sort((a, b) => {
     // 1. Activas primero
@@ -94,17 +109,23 @@ export function ordenarPosiciones(posiciones: PosicionData[]): PosicionData[] {
 
     // 2. Si ambas son activas, la que inició más recientemente primero
     if (a.actualmente && b.actualmente) {
-      return b.fechaInicio.localeCompare(a.fechaInicio);
+      return normalizarFecha(b.fechaInicio).localeCompare(
+        normalizarFecha(a.fechaInicio)
+      );
     }
 
     // 3. Si ninguna es activa, comparar fecha de finalización descendente
     const finA = a.fechaFin ?? a.fechaInicio;
     const finB = b.fechaFin ?? b.fechaInicio;
-    const compFin = finB.localeCompare(finA);
+    const compFin = normalizarFecha(finB, true).localeCompare(
+      normalizarFecha(finA, true)
+    );
     if (compFin !== 0) return compFin;
 
     // 4. Desempate por fecha de inicio descendente
-    return b.fechaInicio.localeCompare(a.fechaInicio);
+    return normalizarFecha(b.fechaInicio).localeCompare(
+      normalizarFecha(a.fechaInicio)
+    );
   });
 }
 
@@ -131,18 +152,20 @@ export function ordenarExperienciasCronologicamente(
         // Obtenemos la fecha de inicio más reciente entre la experiencia y sus posiciones
         const maxInicioA = Math.max(
           ...[a.fechaInicio, ...(a.posiciones?.map((p) => p.fechaInicio) ?? [])].map(
-            (f) => new Date(`${f.slice(0, 7)}-01`).getTime()
+            (f) => new Date(`${normalizarFecha(f)}-01`).getTime()
           )
         );
         const maxInicioB = Math.max(
           ...[b.fechaInicio, ...(b.posiciones?.map((p) => p.fechaInicio) ?? [])].map(
-            (f) => new Date(`${f.slice(0, 7)}-01`).getTime()
+            (f) => new Date(`${normalizarFecha(f)}-01`).getTime()
           )
         );
         if (maxInicioB !== maxInicioA) {
           return maxInicioB - maxInicioA;
         }
-        return b.fechaInicio.localeCompare(a.fechaInicio);
+        return normalizarFecha(b.fechaInicio).localeCompare(
+          normalizarFecha(a.fechaInicio)
+        );
       }
 
       // 3. Ambas finalizadas: comparar fecha de fin más tardía descendente
@@ -158,11 +181,15 @@ export function ordenarExperienciasCronologicamente(
       const maxFinA = fechasFinA.sort().reverse()[0] ?? a.fechaInicio;
       const maxFinB = fechasFinB.sort().reverse()[0] ?? b.fechaInicio;
 
-      const compFin = maxFinB.localeCompare(maxFinA);
+      const compFin = normalizarFecha(maxFinB, true).localeCompare(
+        normalizarFecha(maxFinA, true)
+      );
       if (compFin !== 0) return compFin;
 
       // 4. Desempate por fecha de inicio descendente
-      const compInicio = b.fechaInicio.localeCompare(a.fechaInicio);
+      const compInicio = normalizarFecha(b.fechaInicio).localeCompare(
+        normalizarFecha(a.fechaInicio)
+      );
       if (compInicio !== 0) return compInicio;
 
       // 5. Fallback por ID descendente

@@ -92,7 +92,7 @@ export default function ExperienciaTimeline({
             <div key={exp.id} className="relative group">
               {/* Nodo sobre la línea de tiempo */}
               <div
-                className={`absolute -left-[31px] sm:-left-[39px] top-4 w-3.5 h-3.5 rounded-full border-2 border-background transition-transform group-hover:scale-125 ${getDotColor(
+                className={`absolute -left-7.75 sm:-left-9.75 top-4 w-3.5 h-3.5 rounded-full border-2 border-background transition-transform group-hover:scale-125 ${getDotColor(
                   exp.tipo
                 )} ${esActiva ? "ring-4 ring-accent/20" : ""}`}
                 title={esActiva ? "Actualmente en curso" : undefined}
@@ -149,7 +149,7 @@ export default function ExperienciaTimeline({
                       {exp.posiciones.map((pos, idx) => (
                         <div key={pos.id ?? idx} className="relative">
                           {/* Pequeño punto conector para cada cargo */}
-                          <div className="absolute -left-[18px] top-1.5 w-1.5 h-1.5 rounded-full bg-muted-faint" />
+                          <div className="absolute -left-4.5 top-1.5 w-1.5 h-1.5 rounded-full bg-muted-faint" />
 
                           <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5">
                             <span className="font-semibold text-foreground text-sm">
