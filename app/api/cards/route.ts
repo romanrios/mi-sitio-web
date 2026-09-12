@@ -2,6 +2,7 @@ import { db } from "@/app/db";
 import { cards } from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
+import { esCategoriaValida } from "@/lib/categorias";
 import { asc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -36,16 +37,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!body.categoria || typeof body.categoria !== "string" || !esCategoriaValida(body.categoria)) {
+    return NextResponse.json(
+      { error: "Categoría inválida o no permitida." },
+      { status: 400 }
+    );
+  }
+
   const nuevaCard = await db
     .insert(cards)
     .values({
       titulo: body.titulo,
       descripcion: body.descripcion,
       imagenUrl: body.imagenUrl,
+      categoria: body.categoria,
       orden: typeof body.orden === "number" ? body.orden : 0,
       creadoEn: new Date().toISOString(),
     })
     .returning();
 
   return NextResponse.json(nuevaCard[0], { status: 201 });
-}
+}

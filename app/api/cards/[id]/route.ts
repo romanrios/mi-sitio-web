@@ -2,6 +2,7 @@ import { db } from "@/app/db";
 import { cards } from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
+import { esCategoriaValida } from "@/lib/categorias";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,12 +25,22 @@ export async function PUT(
 
   const body = await request.json();
 
+  if (body.categoria !== undefined) {
+    if (typeof body.categoria !== "string" || !esCategoriaValida(body.categoria)) {
+      return NextResponse.json(
+        { error: "Categoría inválida o no permitida." },
+        { status: 400 }
+      );
+    }
+  }
+
   const actualizada = await db
     .update(cards)
     .set({
       titulo: body.titulo,
       descripcion: body.descripcion,
       imagenUrl: body.imagenUrl,
+      ...(body.categoria ? { categoria: body.categoria } : {}),
       orden: typeof body.orden === "number" ? body.orden : 0,
     })
     .where(eq(cards.id, cardId))
@@ -41,6 +52,7 @@ export async function PUT(
 
   return NextResponse.json(actualizada[0]);
 }
+
 
 export async function DELETE(
   request: NextRequest,

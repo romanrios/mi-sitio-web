@@ -29,6 +29,13 @@
       "when": 1789145129216,
       "tag": "0003_secret_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789225632038,
+      "tag": "0004_real_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `cards` ADD `categoria` text DEFAULT 'Desarrollo de web y software' NOT NULL;
