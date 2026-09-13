@@ -9,6 +9,7 @@ export default function AdminNav() {
   const tabs = [
     { href: "/admin", label: "Cards", exact: true },
     { href: "/admin/experiencia", label: "Experiencia" },
+    { href: "/admin/habilidades", label: "Habilidades" },
   ];
 
   return (
