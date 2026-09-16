@@ -5,8 +5,8 @@ import type { Session } from "next-auth";
 
 export default function Header({ session }: { session: Session | null }) {
   return (
-    <div className="w-full max-w-md flex justify-between items-center mb-8">
-      <h1 className="text-2xl font-bold text-foreground">{site.name}</h1>
+    <div className="w-full max-w-2xl flex justify-between items-center mb-8">
+      <span className="text-xl font-bold text-foreground tracking-tight">{site.name}</span>
 
       <div className="flex items-center gap-2">
         <ThemeToggle />

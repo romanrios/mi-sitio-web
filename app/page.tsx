@@ -5,6 +5,7 @@ import Container from "@/components/ui/Container";
 import CardsSection from "@/features/cards/CardsSection";
 import ExperienciaSection from "@/features/experiencia/ExperienciaSection";
 import HabilidadesSection from "@/features/habilidades/HabilidadesSection";
+import HeroSection from "@/features/hero/HeroSection";
 import MensajesApp from "@/features/mensajes/MensajesApp";
 
 export default async function Home() {
@@ -13,6 +14,7 @@ export default async function Home() {
   return (
     <Container>
       <Header session={session} />
+      <HeroSection />
       <CardsSection />
       <ExperienciaSection />
       <HabilidadesSection />
