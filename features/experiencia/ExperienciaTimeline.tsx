@@ -4,10 +4,11 @@ import Card from "@/components/ui/Card";
 import {
   ExperienciaData,
   formatearPeriodo,
+  ordenarExperienciasCronologicamente,
   TIPO_LABELS,
   TipoExperiencia,
 } from "@/lib/experiencias-utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type FiltroTipo = "todas" | TipoExperiencia;
 
@@ -25,10 +26,13 @@ export default function ExperienciaTimeline({
 }) {
   const [filtro, setFiltro] = useState<FiltroTipo>("todas");
 
-  const experienciasFiltradas = experiencias.filter((exp) => {
-    if (filtro === "todas") return true;
-    return exp.tipo === filtro;
-  });
+  const experienciasFiltradas = useMemo(() => {
+    const filtradas = experiencias.filter((exp) => {
+      if (filtro === "todas") return true;
+      return exp.tipo === filtro;
+    });
+    return ordenarExperienciasCronologicamente(filtradas);
+  }, [experiencias, filtro]);
 
   function getBadgeClasses(tipo: TipoExperiencia) {
     switch (tipo) {
@@ -126,7 +130,7 @@ export default function ExperienciaTimeline({
                 </div>
 
                 {/* Título principal */}
-                <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground text-pretty">
                   {exp.titulo}
                 </h3>
 

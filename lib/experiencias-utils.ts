@@ -12,6 +12,12 @@ export const TIPO_LABELS: Record<TipoExperiencia, string> = {
   curso: "Curso",
 };
 
+export const ORDEN_CATEGORIAS: Record<TipoExperiencia, number> = {
+  laboral: 1,
+  academica: 2,
+  curso: 3,
+};
+
 export type PosicionData = {
   id?: number;
   experienciaId?: number;
@@ -130,14 +136,26 @@ export function ordenarPosiciones(posiciones: PosicionData[]): PosicionData[] {
 }
 
 export function ordenarExperienciasCronologicamente(
-  experiencias: ExperienciaData[]
+  experiencias: ExperienciaData[],
+  options?: { agruparPorCategoria?: boolean }
 ): ExperienciaData[] {
+  const agrupar = options?.agruparPorCategoria ?? true;
+
   return [...experiencias]
     .map((exp) => ({
       ...exp,
       posiciones: exp.posiciones ? ordenarPosiciones(exp.posiciones) : [],
     }))
     .sort((a, b) => {
+      // 0. Agrupar por categoría: primero "laboral", luego "academica" y finalmente "curso"
+      if (agrupar) {
+        const ordenA = ORDEN_CATEGORIAS[a.tipo] ?? 99;
+        const ordenB = ORDEN_CATEGORIAS[b.tipo] ?? 99;
+        if (ordenA !== ordenB) {
+          return ordenA - ordenB;
+        }
+      }
+
       const aEsActiva =
         a.actualmente || (a.posiciones && a.posiciones.some((p) => p.actualmente));
       const bEsActiva =
