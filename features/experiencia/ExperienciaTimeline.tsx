@@ -85,7 +85,7 @@ export default function ExperienciaTimeline({
       )}
 
       {/* Timeline unificada */}
-      <div className="relative pl-6 sm:pl-8 border-l-2 border-border space-y-8">
+      <div className="relative pl-6 sm:pl-8 border-l-2 border-border space-y-5">
         {experienciasFiltradas.map((exp) => {
           const esActiva =
             exp.actualmente ||
@@ -130,7 +130,7 @@ export default function ExperienciaTimeline({
                 </div>
 
                 {/* Título principal */}
-                <h3 className="text-lg sm:text-xl font-bold text-foreground text-pretty">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground text-pretty leading-tight">
                   {exp.titulo}
                 </h3>
 
