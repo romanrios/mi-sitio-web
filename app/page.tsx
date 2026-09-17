@@ -7,6 +7,8 @@ import HabilidadesSection from "@/features/habilidades/HabilidadesSection";
 import HeroSection from "@/features/hero/HeroSection";
 import ProyectosSection from "@/features/proyectos/ProyectosSection";
 
+export const revalidate = 60;
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
