@@ -73,5 +73,9 @@ export function extraerVimeoId(urlOrId: string): string {
 
 export function obtenerVimeoEmbedUrl(urlOrId: string): string {
   const videoIdWithParams = extraerVimeoId(urlOrId);
-  return `https://player.vimeo.com/video/${videoIdWithParams}`;
+  if (videoIdWithParams.includes("transparent=")) {
+    return `https://player.vimeo.com/video/${videoIdWithParams}`;
+  }
+  const separator = videoIdWithParams.includes("?") ? "&" : "?";
+  return `https://player.vimeo.com/video/${videoIdWithParams}${separator}transparent=0`;
 }

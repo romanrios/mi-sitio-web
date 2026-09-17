@@ -123,7 +123,7 @@ export default function ProyectoModal({
         {/* Contenido scrolleable */}
         <div className="overflow-y-auto flex-1 px-3 py-6 sm:p-6 space-y-6">
           {/* Visor de Galería */}
-          <div className="relative w-full aspect-video bg-black/90 rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
+          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
             {elementoActual.tipo === "imagen" ? (
               <img
                 src={elementoActual.url}
@@ -134,7 +134,7 @@ export default function ProyectoModal({
               <iframe
                 src={obtenerYoutubeEmbedUrl(elementoActual.url)}
                 title={`${titulo} - Video YouTube ${indiceActivo + 1}`}
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 bg-black"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -142,7 +142,7 @@ export default function ProyectoModal({
               <iframe
                 src={obtenerVimeoEmbedUrl(elementoActual.url)}
                 title={`${titulo} - Video Vimeo ${indiceActivo + 1}`}
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 bg-black"
                 allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen
               />
