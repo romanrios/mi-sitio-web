@@ -1,10 +1,11 @@
 "use client";
 
 import ThemeToggle from "@/components/theme/ThemeToggle";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   // Cerrar menú con tecla Escape
   useEffect(() => {
@@ -17,6 +18,24 @@ export default function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: PointerEvent) {
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setMenuAbierto(false);
+      }
+    }
+    if (menuAbierto) {
+      document.addEventListener("pointerdown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [menuAbierto]);
+
   const navLinks = [
     { label: "Inicio", href: "inicio" },
     { label: "Experiencia", href: "experiencia" },
@@ -25,27 +44,40 @@ export default function Header() {
     { label: "Contacto", href: "contacto" },
   ];
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
     e.preventDefault();
+    setMenuAbierto(false);
+
+    if (targetId === "inicio") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     const element = document.getElementById(targetId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    setMenuAbierto(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface/85 backdrop-blur-md border-b border-border shadow-xs transition-colors">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 w-full bg-surface/85 backdrop-blur-md border-b border-border shadow-xs transition-colors"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo / Nombre a la izquierda en Montserrat gruesa */}
         <a
           href="#inicio"
           onClick={(e) => handleNavClick(e, "inicio")}
-          className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-foreground hover:text-accent transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 text-foreground hover:bg-gray-300 dark:hover:bg-gray-600 hover:text-accent font-heading font-extrabold text-xl leading-none select-none transition-colors"
+          aria-label="Ir al inicio"
         >
-          Román Ríos
+          R
         </a>
 
         {/* Navegación Desktop */}
@@ -116,7 +148,7 @@ export default function Header() {
 
       {/* Menú Desplegable Mobile */}
       {menuAbierto && (
-        <div className="md:hidden border-t border-border bg-surface/95 backdrop-blur-md px-4 py-3 animate-in slide-in-from-top-2 duration-200 shadow-lg">
+        <div className="md:hidden absolute top-full left-0 w-full border-b border-border bg-surface/95 backdrop-blur-md px-4 py-3 animate-in slide-in-from-top-2 duration-200 shadow-lg">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <a

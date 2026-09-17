@@ -80,7 +80,7 @@ export default function ProyectoModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 py-4 sm:p-5 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -92,7 +92,7 @@ export default function ProyectoModal({
     >
       <div className="bg-surface border border-border text-foreground rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Cabecera del modal */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-3 py-4 sm:px-6 border-b border-border">
           <h3
             id="modal-proyecto-titulo"
             className="text-xl font-bold text-foreground truncate pr-4"
@@ -121,7 +121,7 @@ export default function ProyectoModal({
         </div>
 
         {/* Contenido scrolleable */}
-        <div className="overflow-y-auto flex-1 p-6 space-y-6">
+        <div className="overflow-y-auto flex-1 px-3 py-6 sm:p-6 space-y-6">
           {/* Visor de Galería */}
           <div className="relative w-full aspect-video bg-black/90 rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
             {elementoActual.tipo === "imagen" ? (
@@ -216,11 +216,10 @@ export default function ProyectoModal({
                   key={idx}
                   type="button"
                   onClick={() => setIndiceActivo(idx)}
-                  className={`transition-all rounded-full ${
-                    idx === indiceActivo
-                      ? "w-6 h-2 bg-accent"
-                      : "w-2 h-2 bg-border-strong hover:bg-muted"
-                  }`}
+                  className={`transition-all rounded-full ${idx === indiceActivo
+                    ? "w-6 h-2 bg-accent"
+                    : "w-2 h-2 bg-border-strong hover:bg-muted"
+                    }`}
                   aria-label={`Ir a multimedia ${idx + 1}`}
                 />
               ))}
