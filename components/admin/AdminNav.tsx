@@ -12,6 +12,7 @@ export default function AdminNav() {
     { href: "/admin/experiencia", label: "Experiencia" },
     { href: "/admin/habilidades", label: "Habilidades" },
     { href: "/admin", label: "Proyectos", exact: true },
+    { href: "/admin/contacto", label: "Contacto" },
   ];
 
   return (

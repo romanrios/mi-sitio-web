@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import ContactoSection from "@/features/contacto/ContactoSection";
 import ExperienciaSection from "@/features/experiencia/ExperienciaSection";
 import HabilidadesSection from "@/features/habilidades/HabilidadesSection";
 import HeroSection from "@/features/hero/HeroSection";
@@ -20,9 +21,11 @@ export default function Home() {
 
         <div className="w-full flex flex-col items-center px-4 py-16 sm:py-20">
           <ProyectosSection />
-          <Footer />
         </div>
+
+        <ContactoSection />
       </main>
+      <Footer />
     </div>
   );
 }
