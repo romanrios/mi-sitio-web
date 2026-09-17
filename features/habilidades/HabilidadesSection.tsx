@@ -29,10 +29,14 @@ export default async function HabilidadesSection() {
   }
 
   return (
-    <section className="w-full max-w-2xl mt-4 mb-16">
-      <h2 className="text-2xl font-bold text-foreground mb-6">Habilidades</h2>
+    <section
+      id="habilidades"
+      className="w-full bg-hero-bg border-y border-border py-16 sm:py-20 px-4 scroll-mt-16 flex justify-center"
+    >
+      <div className="w-full max-w-2xl">
+        <h2 className="text-2xl font-bold text-foreground mb-6">Habilidades</h2>
 
-      <div className="space-y-8">
+        <div className="space-y-8">
         {secciones.map((seccion) => (
           <div key={seccion.id} className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
@@ -74,6 +78,7 @@ export default async function HabilidadesSection() {
             ) : null}
           </div>
         ))}
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { logoutAction } from "@/lib/auth-actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,9 +9,9 @@ export default function AdminNav() {
 
   const tabs = [
     { href: "/admin/hero", label: "Hero" },
-    { href: "/admin", label: "Proyectos", exact: true },
     { href: "/admin/experiencia", label: "Experiencia" },
     { href: "/admin/habilidades", label: "Habilidades" },
+    { href: "/admin", label: "Proyectos", exact: true },
   ];
 
   return (
@@ -19,12 +20,22 @@ export default function AdminNav() {
         <h1 className="text-2xl font-bold text-foreground">
           Panel de administración
         </h1>
-        <Link
-          href="/"
-          className="text-sm text-muted hover:text-foreground transition-colors"
-        >
-          ← Volver al sitio
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-sm text-muted hover:text-foreground transition-colors"
+          >
+            ← Volver al sitio
+          </Link>
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              className="text-sm text-error hover:underline cursor-pointer"
+            >
+              Cerrar sesión
+            </button>
+          </form>
+        </div>
       </div>
 
       <nav className="flex gap-2 border-b border-border pb-2">
@@ -36,11 +47,10 @@ export default function AdminNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                isActive
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isActive
                   ? "bg-accent text-accent-foreground"
                   : "text-muted hover:bg-surface-hover hover:text-foreground"
-              }`}
+                }`}
             >
               {tab.label}
             </Link>

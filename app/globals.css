@@ -18,6 +18,7 @@
   --accent-hover: #1d4ed8;
   --accent-foreground: #ffffff;
   --ring: #60a5fa;
+  --hero-bg: #f1f4f9;
 }
 
 .dark {
@@ -36,6 +37,7 @@
   --accent-hover: #60a5fa;
   --accent-foreground: #ffffff;
   --ring: #60a5fa;
+  --hero-bg: #1e293b;
 }
 
 @theme inline {
@@ -53,9 +55,14 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-ring: var(--ring);
+  --color-hero-bg: var(--hero-bg);
   --font-sans: var(--font-inter);
   --font-heading: var(--font-montserrat);
   --font-mono: var(--font-fira-code);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {

@@ -21,7 +21,7 @@ export default async function ExperienciaSection() {
   );
 
   return (
-    <section className="w-full max-w-2xl mt-4 mb-16">
+    <section id="experiencia" className="w-full max-w-2xl scroll-mt-24">
       <h2 className="text-2xl font-bold text-foreground mb-6">Experiencia</h2>
       <ExperienciaTimeline experiencias={ordenadas} />
     </section>

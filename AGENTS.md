@@ -27,7 +27,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `app/api/` → endpoints
 
 ## Estructura clave
-- `app/page.tsx` → compositor de la home (sesión + secciones)
+- `app/page.tsx` → compositor de la home (secciones públicas)
 - `app/admin/layout.tsx` → gate de autenticación/admin para `/admin` y futuras subrutas
 - `app/admin/page.tsx` → panel actual (CRUD de proyectos)
 - `features/proyectos/ProyectosSection.tsx` → grilla pública de proyectos (DB)

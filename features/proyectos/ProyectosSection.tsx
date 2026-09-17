@@ -34,7 +34,7 @@ export default async function ProyectosSection() {
   }
 
   return (
-    <section className="w-full max-w-4xl mt-4 mb-16 space-y-12">
+    <section id="proyectos" className="w-full max-w-4xl space-y-12 scroll-mt-24">
       {categoriasConProyectos.map(({ categoria, items }) => (
         <div key={categoria}>
           <h2 className="text-2xl font-bold text-foreground mb-6">
