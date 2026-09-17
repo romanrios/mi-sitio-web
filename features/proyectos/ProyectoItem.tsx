@@ -39,7 +39,7 @@ export default function ProyectoItem({
           />
         </div>
         <div className="p-5 flex-1 flex flex-col">
-          <h3 className="font-semibold text-lg text-foreground mb-1 group-hover:text-accent transition-colors">
+          <h3 className="font-semibold text-lg text-foreground mb-1 group-hover:text-accent transition-colors leading-snug">
             {titulo}
           </h3>
           <p className="text-sm text-muted flex-1 line-clamp-3 mb-4">
