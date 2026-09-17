@@ -37,7 +37,7 @@ export default function ExperienciaTimeline({
   function getBadgeClasses(tipo: TipoExperiencia) {
     switch (tipo) {
       case "laboral":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+        return "bg-accent/10 text-accent border-accent/20";
       case "academica":
         return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
       case "curso":

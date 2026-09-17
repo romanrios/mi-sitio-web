@@ -14,11 +14,11 @@
   --border: #d1d5db;
   --border-strong: #9ca3af;
   --error: #dc2626;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  --accent: #0090ad;
+  --accent-hover: #00778f;
   --accent-foreground: #ffffff;
-  --ring: #60a5fa;
-  --hero-bg: #e8ecf3;
+  --ring: #06b6d4;
+  --hero-bg: #e6edf2;
 }
 
 .dark {
@@ -33,11 +33,11 @@
   --border: #374151;
   --border-strong: #4b5563;
   --error: #f87171;
-  --accent: #3b82f6;
-  --accent-hover: #60a5fa;
+  --accent: #00b4d8;
+  --accent-hover: #22d3ee;
   --accent-foreground: #ffffff;
-  --ring: #60a5fa;
-  --hero-bg: #1e293b;
+  --ring: #22d3ee;
+  --hero-bg: #162433;
 }
 
 @theme inline {

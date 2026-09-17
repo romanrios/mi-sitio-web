@@ -16,15 +16,27 @@ export default async function HeroSection() {
   return (
     <section
       id="inicio"
-      className="relative w-full min-h-[calc(100vh-4rem)] min-h-[calc(100dvh-4rem)] bg-hero-bg border-b border-border flex flex-col justify-center items-center px-4 py-16 sm:py-24 scroll-mt-16"
+      className="relative w-full min-h-[calc(100vh-4rem)] min-h-[calc(100dvh-4rem)] bg-hero-bg border-b border-border flex flex-col justify-center items-center px-4 py-16 sm:py-24 scroll-mt-16 overflow-hidden"
     >
-      {/* Resplandor sutil de fondo */}
+      {/* Fondo suave con curvas orgánicas difuminadas en paleta cyan */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/8 via-transparent to-transparent pointer-events-none"
-      />
+        className="absolute inset-0 pointer-events-none overflow-hidden select-none"
+      >
+        {/* Curva orgánica superior derecha con desenfoque profundo */}
+        <div className="absolute -top-20 -right-16 sm:-right-8 w-[420px] sm:w-[650px] h-[280px] sm:h-[420px] rounded-[45%_55%_65%_35%/50%_35%_65%_50%] bg-gradient-to-br from-cyan-400/30 via-accent/25 to-transparent blur-3xl sm:blur-[110px] opacity-75 dark:opacity-45 transform -rotate-12" />
 
-      <div className="relative w-full max-w-2xl mx-auto flex flex-col justify-center">
+        {/* Curva orgánica central / inferior izquierda que fluye con el fondo */}
+        <div className="absolute top-1/3 -left-20 sm:-left-12 w-[380px] sm:w-[580px] h-[260px] sm:h-[380px] rounded-[55%_45%_35%_65%/40%_60%_40%_60%] bg-gradient-to-tr from-accent/25 via-cyan-500/20 to-transparent blur-3xl sm:blur-[110px] opacity-70 dark:opacity-40 transform rotate-6" />
+
+        {/* Resplandor sutil de apoyo detrás del área principal */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] sm:w-[480px] h-[200px] sm:h-[280px] rounded-full bg-cyan-400/15 dark:bg-accent/15 blur-3xl sm:blur-[100px] opacity-60 dark:opacity-35" />
+
+        {/* Transición suave hacia el borde inferior */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-hero-bg to-transparent" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col justify-center">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 text-center sm:text-left">
           {/* Foto de perfil enmarcada en círculo */}
           <div className="relative shrink-0">
@@ -55,7 +67,7 @@ export default async function HeroSection() {
       </div>
 
       {/* Indicador de scroll para explorar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
         <a
           href="#experiencia"
           className="text-xs font-medium text-muted hover:text-foreground flex flex-col items-center gap-1.5 transition-colors group cursor-pointer"

@@ -276,7 +276,7 @@ export default function AdminExperienciaApp() {
   function renderBadge(t: TipoExperiencia) {
     const styles: Record<TipoExperiencia, string> = {
       laboral:
-        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+        "bg-accent/10 text-accent border-accent/20",
       academica:
         "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
       curso:
