@@ -8,7 +8,7 @@ export default function AdminNav() {
 
   const tabs = [
     { href: "/admin/hero", label: "Hero" },
-    { href: "/admin", label: "Cards", exact: true },
+    { href: "/admin", label: "Proyectos", exact: true },
     { href: "/admin/experiencia", label: "Experiencia" },
     { href: "/admin/habilidades", label: "Habilidades" },
   ];

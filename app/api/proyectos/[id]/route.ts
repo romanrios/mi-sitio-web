@@ -1,5 +1,10 @@
 import { db } from "@/app/db";
-import { cardEnlaces, cardGaleria, cards, cardTags } from "@/app/db/schema";
+import {
+  proyectoEnlaces,
+  proyectoGaleria,
+  proyectos,
+  proyectoTags,
+} from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 import { esCategoriaValida } from "@/lib/categorias";
@@ -17,9 +22,9 @@ export async function PUT(
   }
 
   const { id } = await params;
-  const cardId = parseInt(id, 10);
+  const proyectoId = parseInt(id, 10);
 
-  if (isNaN(cardId)) {
+  if (isNaN(proyectoId)) {
     return NextResponse.json({ error: "ID inválido." }, { status: 400 });
   }
 
@@ -104,7 +109,7 @@ export async function PUT(
   }
 
   const actualizada = await db
-    .update(cards)
+    .update(proyectos)
     .set({
       titulo: body.titulo?.trim(),
       descripcion: body.descripcion?.trim(),
@@ -112,50 +117,50 @@ export async function PUT(
       ...(body.categoria ? { categoria: body.categoria } : {}),
       orden: typeof body.orden === "number" ? body.orden : 0,
     })
-    .where(eq(cards.id, cardId))
+    .where(eq(proyectos.id, proyectoId))
     .returning();
 
   if (actualizada.length === 0) {
-    return NextResponse.json({ error: "Card no encontrada." }, { status: 404 });
+    return NextResponse.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
   // Reemplazar galería
-  await db.delete(cardGaleria).where(eq(cardGaleria.cardId, cardId));
+  await db.delete(proyectoGaleria).where(eq(proyectoGaleria.proyectoId, proyectoId));
   if (body.galeria && Array.isArray(body.galeria) && body.galeria.length > 0) {
     const galeriaAInsertar = body.galeria.map((item: any, index: number) => ({
-      cardId: cardId,
+      proyectoId,
       tipo: item.tipo,
       url: item.url.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardGaleria).values(galeriaAInsertar);
+    await db.insert(proyectoGaleria).values(galeriaAInsertar);
   }
 
   // Reemplazar tags
-  await db.delete(cardTags).where(eq(cardTags.cardId, cardId));
+  await db.delete(proyectoTags).where(eq(proyectoTags.proyectoId, proyectoId));
   if (body.tags && Array.isArray(body.tags) && body.tags.length > 0) {
     const tagsAInsertar = body.tags.map((item: any, index: number) => ({
-      cardId: cardId,
+      proyectoId,
       nombre: item.nombre.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardTags).values(tagsAInsertar);
+    await db.insert(proyectoTags).values(tagsAInsertar);
   }
 
   // Reemplazar enlaces
-  await db.delete(cardEnlaces).where(eq(cardEnlaces.cardId, cardId));
+  await db.delete(proyectoEnlaces).where(eq(proyectoEnlaces.proyectoId, proyectoId));
   if (body.enlaces && Array.isArray(body.enlaces) && body.enlaces.length > 0) {
     const enlacesAInsertar = body.enlaces.map((item: any, index: number) => ({
-      cardId: cardId,
+      proyectoId,
       etiqueta: item.etiqueta.trim(),
       url: item.url.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardEnlaces).values(enlacesAInsertar);
+    await db.insert(proyectoEnlaces).values(enlacesAInsertar);
   }
 
-  const actualizadaConRelaciones = await db.query.cards.findFirst({
-    where: eq(cards.id, cardId),
+  const actualizadaConRelaciones = await db.query.proyectos.findFirst({
+    where: eq(proyectos.id, proyectoId),
     with: {
       galeria: {
         orderBy: (galeria, { asc }) => [asc(galeria.orden)],
@@ -183,19 +188,19 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const cardId = parseInt(id, 10);
+  const proyectoId = parseInt(id, 10);
 
-  if (isNaN(cardId)) {
+  if (isNaN(proyectoId)) {
     return NextResponse.json({ error: "ID inválido." }, { status: 400 });
   }
 
   const eliminada = await db
-    .delete(cards)
-    .where(eq(cards.id, cardId))
+    .delete(proyectos)
+    .where(eq(proyectos.id, proyectoId))
     .returning();
 
   if (eliminada.length === 0) {
-    return NextResponse.json({ error: "Card no encontrada." }, { status: 404 });
+    return NextResponse.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

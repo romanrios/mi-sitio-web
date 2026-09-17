@@ -4,7 +4,9 @@ import { isAdmin } from "@/lib/auth-utils";
 
 export default async function AdminLayout({
   children,
-}: LayoutProps<"/admin">) {
+}: {
+  children: React.ReactNode;
+}) {
   const session = await auth();
 
   if (!session?.user) {

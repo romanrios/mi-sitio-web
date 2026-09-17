@@ -1,29 +1,29 @@
 export type TipoGaleria = "imagen" | "youtube" | "vimeo";
 
-export type CardGaleriaItem = {
+export type ProyectoGaleriaItem = {
   id?: number;
-  cardId?: number;
+  proyectoId?: number;
   tipo: TipoGaleria;
   url: string;
   orden?: number;
 };
 
-export type CardTagItem = {
+export type ProyectoTagItem = {
   id?: number;
-  cardId?: number;
+  proyectoId?: number;
   nombre: string;
   orden?: number;
 };
 
-export type CardEnlaceItem = {
+export type ProyectoEnlaceItem = {
   id?: number;
-  cardId?: number;
+  proyectoId?: number;
   etiqueta: string;
   url: string;
   orden?: number;
 };
 
-export type CardData = {
+export type ProyectoData = {
   id: number;
   titulo: string;
   descripcion: string;
@@ -31,9 +31,9 @@ export type CardData = {
   categoria: string;
   orden: number;
   creadoEn?: string;
-  galeria?: CardGaleriaItem[];
-  tags?: CardTagItem[];
-  enlaces?: CardEnlaceItem[];
+  galeria?: ProyectoGaleriaItem[];
+  tags?: ProyectoTagItem[];
+  enlaces?: ProyectoEnlaceItem[];
 };
 
 export function extraerYoutubeId(urlOrId: string): string {

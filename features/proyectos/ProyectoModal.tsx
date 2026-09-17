@@ -1,6 +1,12 @@
 "use client";
 
-import { CardEnlaceItem, CardGaleriaItem, CardTagItem, obtenerVimeoEmbedUrl, obtenerYoutubeEmbedUrl } from "@/lib/cards-utils";
+import {
+  obtenerVimeoEmbedUrl,
+  obtenerYoutubeEmbedUrl,
+  ProyectoEnlaceItem,
+  ProyectoGaleriaItem,
+  ProyectoTagItem,
+} from "@/lib/proyectos-utils";
 import { useEffect, useState } from "react";
 
 type ProyectoModalProps = {
@@ -9,9 +15,9 @@ type ProyectoModalProps = {
   titulo: string;
   descripcion: string;
   imagenUrl: string;
-  galeria?: CardGaleriaItem[];
-  tags?: CardTagItem[];
-  enlaces?: CardEnlaceItem[];
+  galeria?: ProyectoGaleriaItem[];
+  tags?: ProyectoTagItem[];
+  enlaces?: ProyectoEnlaceItem[];
 };
 
 export default function ProyectoModal({
@@ -27,7 +33,7 @@ export default function ProyectoModal({
   const [indiceActivo, setIndiceActivo] = useState(0);
 
   // Si la galería está vacía, usamos la imagen principal como único elemento
-  const itemsGaleria: CardGaleriaItem[] =
+  const itemsGaleria: ProyectoGaleriaItem[] =
     galeria.length > 0
       ? galeria
       : [{ tipo: "imagen", url: imagenUrl, orden: 0 }];
@@ -128,21 +134,21 @@ export default function ProyectoModal({
               <iframe
                 src={obtenerYoutubeEmbedUrl(elementoActual.url)}
                 title={`${titulo} - Video YouTube ${indiceActivo + 1}`}
+                className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="w-full h-full border-0"
               />
-            ) : (
+            ) : elementoActual.tipo === "vimeo" ? (
               <iframe
                 src={obtenerVimeoEmbedUrl(elementoActual.url)}
                 title={`${titulo} - Video Vimeo ${indiceActivo + 1}`}
+                className="w-full h-full border-0"
                 allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen
-                className="w-full h-full border-0"
               />
-            )}
+            ) : null}
 
-            {/* Flechas de navegación si hay múltiples medios */}
+            {/* Controles de navegación en galería si hay más de 1 */}
             {tieneVariosMedios && (
               <>
                 <button
@@ -152,8 +158,8 @@ export default function ProyectoModal({
                       prev === 0 ? itemsGaleria.length - 1 : prev - 1
                     )
                   }
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full p-2 transition-transform hover:scale-110 focus:outline-none"
-                  aria-label="Anterior multimedia"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors"
+                  aria-label="Elemento anterior"
                 >
                   <svg
                     className="w-5 h-5"
@@ -176,8 +182,8 @@ export default function ProyectoModal({
                       prev === itemsGaleria.length - 1 ? 0 : prev + 1
                     )
                   }
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full p-2 transition-transform hover:scale-110 focus:outline-none"
-                  aria-label="Siguiente multimedia"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors"
+                  aria-label="Siguiente elemento"
                 >
                   <svg
                     className="w-5 h-5"
@@ -194,8 +200,8 @@ export default function ProyectoModal({
                   </svg>
                 </button>
 
-                {/* Badge indicador de posición */}
-                <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full pointer-events-none">
+                {/* Badge de contador (ej. 1/4) */}
+                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/70 text-white text-xs font-medium">
                   {indiceActivo + 1} / {itemsGaleria.length}
                 </div>
               </>

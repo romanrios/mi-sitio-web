@@ -29,20 +29,20 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Estructura clave
 - `app/page.tsx` → compositor de la home (sesión + secciones)
 - `app/admin/layout.tsx` → gate de autenticación/admin para `/admin` y futuras subrutas
-- `app/admin/page.tsx` → panel actual (CRUD de cards)
-- `features/cards/CardsSection.tsx` → grilla pública de cards (DB)
-- `features/cards/AdminCardsApp.tsx` → formulario y lista de administración
+- `app/admin/page.tsx` → panel actual (CRUD de proyectos)
+- `features/proyectos/ProyectosSection.tsx` → grilla pública de proyectos (DB)
+- `features/proyectos/AdminProyectosApp.tsx` → formulario y lista de administración
 - `features/mensajes/MensajesApp.tsx` → formulario + lista de mensajes
-- `app/api/cards/` → GET público / POST-PUT-DELETE admin
+- `app/api/proyectos/` → GET público / POST-PUT-DELETE admin
 - `app/api/mensajes/` → GET público / POST con sesión
-- `app/db/schema/` → tablas `cards` y `mensajes`
+- `app/db/schema/` → tablas `proyectos`, `mensajes`, `experiencias`, `habilidades`, `hero`
 - `content/site.ts` → nombre y descripción del sitio
 - `auth.ts` → configuración de Auth.js
 
 ## Cómo agregar una sección nueva
 1. Crear `features/nombre/NombreSection.tsx`.
 2. Si el contenido es editorial/estático, agregarlo en `content/` (por ejemplo `content/about.ts`) e importarlo en la sección.
-3. Si necesita CRUD o persistencia, seguir el patrón de `cards`/`mensajes` (schema + `app/api/` + UI en la feature).
+3. Si necesita CRUD o persistencia, seguir el patrón de `proyectos`/`mensajes` (schema + `app/api/` + UI en la feature).
 4. Importar la sección en `app/page.tsx` y colocarla en el compositor.
 5. Reutilizar `components/ui/` solo cuando el elemento se repita o fije un patrón visual.
 

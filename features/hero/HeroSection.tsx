@@ -32,7 +32,7 @@ export default async function HeroSection() {
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight text-pretty">
             {heroData.titulo}
           </h1>
-          <p className="mt-2 text-base sm:text-lg font-medium text-accent whitespace-pre-line text-pretty">
+          <p className="mt-2 text-base sm:text-lg font-medium text-muted whitespace-pre-line text-pretty">
             {heroData.subtitulo}
           </p>
         </div>

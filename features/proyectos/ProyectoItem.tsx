@@ -1,27 +1,31 @@
 "use client";
 
 import Card from "@/components/ui/Card";
-import ProyectoModal from "@/features/cards/ProyectoModal";
-import { CardEnlaceItem, CardGaleriaItem, CardTagItem } from "@/lib/cards-utils";
+import ProyectoModal from "@/features/proyectos/ProyectoModal";
+import {
+  ProyectoEnlaceItem,
+  ProyectoGaleriaItem,
+  ProyectoTagItem,
+} from "@/lib/proyectos-utils";
 import { useState } from "react";
 
-type CardItemProps = {
+type ProyectoItemProps = {
   titulo: string;
   descripcion: string;
   imagenUrl: string;
-  galeria?: CardGaleriaItem[];
-  tags?: CardTagItem[];
-  enlaces?: CardEnlaceItem[];
+  galeria?: ProyectoGaleriaItem[];
+  tags?: ProyectoTagItem[];
+  enlaces?: ProyectoEnlaceItem[];
 };
 
-export default function CardItem({
+export default function ProyectoItem({
   titulo,
   descripcion,
   imagenUrl,
   galeria = [],
   tags = [],
   enlaces = [],
-}: CardItemProps) {
+}: ProyectoItemProps) {
   const [modalAbierto, setModalAbierto] = useState(false);
 
   return (
@@ -65,7 +69,7 @@ export default function CardItem({
             <button
               type="button"
               onClick={() => setModalAbierto(true)}
-              className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+              className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-hover transition-colors cursor-pointer"
             >
               <span>Ver proyecto</span>
               <svg

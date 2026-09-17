@@ -15,7 +15,7 @@ Abrí [http://localhost:3000](http://localhost:3000). El panel de administració
 | Carpeta | Responsabilidad |
 | --- | --- |
 | `app/` | Rutas, páginas y APIs de Next.js |
-| `features/` | Secciones concretas (cards, mensajes, …) |
+| `features/` | Secciones concretas (proyectos, mensajes, …) |
 | `components/` | UI reutilizable (`layout/`, `ui/`) |
 | `content/` | Textos estáticos/editoriales |
 | `lib/` | Utilidades compartidas |

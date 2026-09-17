@@ -1,11 +1,11 @@
 import AdminNav from "@/components/admin/AdminNav";
-import AdminCardsApp from "@/features/cards/AdminCardsApp";
+import AdminProyectosApp from "@/features/proyectos/AdminProyectosApp";
 
 export default function AdminPage() {
   return (
     <>
       <AdminNav />
-      <AdminCardsApp />
+      <AdminProyectosApp />
     </>
   );
 }

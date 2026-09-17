@@ -1,5 +1,10 @@
 import { db } from "@/app/db";
-import { cardEnlaces, cardGaleria, cards, cardTags } from "@/app/db/schema";
+import {
+  proyectoEnlaces,
+  proyectoGaleria,
+  proyectos,
+  proyectoTags,
+} from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 import { esCategoriaValida } from "@/lib/categorias";
@@ -7,8 +12,8 @@ import { asc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const todasLasCards = await db.query.cards.findMany({
-    orderBy: [asc(cards.orden)],
+  const todosLosProyectos = await db.query.proyectos.findMany({
+    orderBy: [asc(proyectos.orden)],
     with: {
       galeria: {
         orderBy: (galeria, { asc }) => [asc(galeria.orden)],
@@ -21,7 +26,7 @@ export async function GET() {
       },
     },
   });
-  return NextResponse.json(todasLasCards);
+  return NextResponse.json(todosLosProyectos);
 }
 
 export async function POST(request: NextRequest) {
@@ -126,8 +131,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const [nuevaCard] = await db
-    .insert(cards)
+  const [nuevoProyecto] = await db
+    .insert(proyectos)
     .values({
       titulo: body.titulo.trim(),
       descripcion: body.descripcion.trim(),
@@ -140,35 +145,35 @@ export async function POST(request: NextRequest) {
 
   if (body.galeria && Array.isArray(body.galeria) && body.galeria.length > 0) {
     const galeriaAInsertar = body.galeria.map((item: any, index: number) => ({
-      cardId: nuevaCard.id,
+      proyectoId: nuevoProyecto.id,
       tipo: item.tipo,
       url: item.url.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardGaleria).values(galeriaAInsertar);
+    await db.insert(proyectoGaleria).values(galeriaAInsertar);
   }
 
   if (body.tags && Array.isArray(body.tags) && body.tags.length > 0) {
     const tagsAInsertar = body.tags.map((item: any, index: number) => ({
-      cardId: nuevaCard.id,
+      proyectoId: nuevoProyecto.id,
       nombre: item.nombre.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardTags).values(tagsAInsertar);
+    await db.insert(proyectoTags).values(tagsAInsertar);
   }
 
   if (body.enlaces && Array.isArray(body.enlaces) && body.enlaces.length > 0) {
     const enlacesAInsertar = body.enlaces.map((item: any, index: number) => ({
-      cardId: nuevaCard.id,
+      proyectoId: nuevoProyecto.id,
       etiqueta: item.etiqueta.trim(),
       url: item.url.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
     }));
-    await db.insert(cardEnlaces).values(enlacesAInsertar);
+    await db.insert(proyectoEnlaces).values(enlacesAInsertar);
   }
 
-  const creadaConRelaciones = await db.query.cards.findFirst({
-    where: eq(cards.id, nuevaCard.id),
+  const creadoConRelaciones = await db.query.proyectos.findFirst({
+    where: eq(proyectos.id, nuevoProyecto.id),
     with: {
       galeria: {
         orderBy: (galeria, { asc }) => [asc(galeria.orden)],
@@ -182,5 +187,5 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return NextResponse.json(creadaConRelaciones, { status: 201 });
+  return NextResponse.json(creadoConRelaciones, { status: 201 });
 }
