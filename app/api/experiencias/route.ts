@@ -9,6 +9,7 @@ import {
   TipoExperiencia,
 } from "@/lib/experiencias-utils";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -131,5 +132,6 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(creadaConPosiciones, { status: 201 });
 }

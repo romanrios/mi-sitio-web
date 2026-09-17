@@ -7,6 +7,7 @@ import {
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 import { asc, eq, inArray } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -152,6 +153,7 @@ export async function PUT(
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(actualizadaConRelaciones);
 }
 
@@ -184,5 +186,6 @@ export async function DELETE(
     );
   }
 
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

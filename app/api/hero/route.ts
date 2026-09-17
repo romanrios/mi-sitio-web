@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { heroDefault } from "@/content/hero";
 import { isAdmin } from "@/lib/auth-utils";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest) {
       .where(eq(hero.id, existente.id))
       .returning();
 
+    revalidatePath("/");
     return NextResponse.json(actualizado);
   }
 
@@ -97,6 +99,7 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
+  revalidatePath("/");
   return NextResponse.json(creado, { status: 201 });
 }
 

@@ -9,6 +9,7 @@ import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 import { esCategoriaValida } from "@/lib/categorias";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -174,6 +175,7 @@ export async function PUT(
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(actualizadaConRelaciones);
 }
 
@@ -203,5 +205,6 @@ export async function DELETE(
     return NextResponse.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

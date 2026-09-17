@@ -7,6 +7,7 @@ import {
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
 import { asc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -137,5 +138,6 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(creadaConRelaciones, { status: 201 });
 }

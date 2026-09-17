@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { contactoItemsDefault, resolverUrlContacto } from "@/content/contacto";
 import { isAdmin } from "@/lib/auth-utils";
 import { asc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
     const actualizados = await db.query.contacto.findMany({
       orderBy: [asc(contacto.orden), asc(contacto.id)],
     });
+    revalidatePath("/");
     return NextResponse.json(actualizados);
   }
 
@@ -84,5 +86,6 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
+  revalidatePath("/");
   return NextResponse.json(nuevo, { status: 201 });
 }
