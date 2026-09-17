@@ -26,11 +26,17 @@ export default function AdminHeroApp() {
           setSubtitulo(data.subtitulo || heroDefault.subtitulo);
           setDescripcion(data.descripcion || heroDefault.descripcion);
         } else {
-          setValoresPorDefecto();
+          setImagenUrl(heroDefault.imagenUrl);
+          setTitulo(heroDefault.titulo);
+          setSubtitulo(heroDefault.subtitulo);
+          setDescripcion(heroDefault.descripcion);
         }
       } catch (err) {
-        console.error(err);
-        setValoresPorDefecto();
+        console.error("Error al cargar Hero:", err);
+        setImagenUrl(heroDefault.imagenUrl);
+        setTitulo(heroDefault.titulo);
+        setSubtitulo(heroDefault.subtitulo);
+        setDescripcion(heroDefault.descripcion);
       } finally {
         setCargando(false);
       }
@@ -38,13 +44,6 @@ export default function AdminHeroApp() {
 
     cargarHero();
   }, []);
-
-  function setValoresPorDefecto() {
-    setImagenUrl(heroDefault.imagenUrl);
-    setTitulo(heroDefault.titulo);
-    setSubtitulo(heroDefault.subtitulo);
-    setDescripcion(heroDefault.descripcion);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -106,20 +105,11 @@ export default function AdminHeroApp() {
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-foreground">Editar Hero</h2>
-          <p className="text-sm text-muted">
-            Configura la información y foto de perfil que se muestra al inicio del sitio.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={setValoresPorDefecto}
-          className="text-xs text-muted hover:text-foreground border border-border px-2.5 py-1.5 rounded hover:bg-surface-hover transition-colors"
-        >
-          Restaurar iniciales
-        </button>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-foreground">Editar Hero</h2>
+        <p className="text-sm text-muted">
+          Configura la información y foto de perfil que se muestra al inicio del sitio.
+        </p>
       </div>
 
       {exito && (

@@ -408,8 +408,8 @@ export default function AdminHabilidadesApp() {
               {guardando
                 ? "Guardando..."
                 : editandoId
-                ? "Actualizar sección"
-                : "Crear sección"}
+                  ? "Actualizar sección"
+                  : "Crear sección"}
             </button>
             {editandoId && (
               <button
@@ -478,23 +478,16 @@ export default function AdminHabilidadesApp() {
                     <h4 className="text-xs font-semibold text-muted uppercase tracking-wider">
                       {sub.nombre}
                     </h4>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {sub.tags && sub.tags.length > 0 ? (
                         sub.tags.map((tag) => (
                           <span
                             key={tag.id || tag.nombre}
-                            className={`inline-flex items-center gap-1 rounded-full border transition-all ${
-                              tag.destacada
-                                ? "text-xs font-medium px-2.5 py-0.5 bg-surface text-foreground border-border-strong"
-                                : "text-[11px] font-normal px-2 py-0.5 bg-surface-hover/60 text-muted opacity-80 border-border/60"
-                            }`}
+                            className={`inline-flex items-center rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-foreground transition-all ${tag.destacada
+                                ? "px-2.5 py-0.5 text-xs"
+                                : "px-2 py-0.5 text-[9px]"
+                              }`}
                           >
-                            {tag.destacada && (
-                              <span
-                                className="w-1.5 h-1.5 rounded-full bg-accent inline-block"
-                                title="Habilidad destacada"
-                              />
-                            )}
                             {tag.nombre}
                           </span>
                         ))

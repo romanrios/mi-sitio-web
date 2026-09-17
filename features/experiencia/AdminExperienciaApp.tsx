@@ -314,11 +314,10 @@ export default function AdminExperienciaApp() {
                     key={item.id}
                     type="button"
                     onClick={() => setTipo(item.id)}
-                    className={`py-2 px-3 text-sm font-medium rounded-md border text-center transition-colors ${
-                      isSelected
-                        ? "bg-accent text-accent-foreground border-accent"
-                        : "bg-surface text-muted border-border-strong hover:bg-surface-hover"
-                    }`}
+                    className={`py-2 px-3 text-sm font-medium rounded-md border text-center transition-colors ${isSelected
+                      ? "bg-accent text-accent-foreground border-accent"
+                      : "bg-surface text-muted border-border-strong hover:bg-surface-hover"
+                      }`}
                   >
                     {item.label}
                   </button>
@@ -361,7 +360,7 @@ export default function AdminExperienciaApp() {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-sm text-muted font-medium">
-                  Fecha de inicio
+                  Inicio
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
                   <input
@@ -406,7 +405,7 @@ export default function AdminExperienciaApp() {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-sm text-muted font-medium">
-                  Fecha de finalización
+                  Fin
                 </label>
                 <div className="flex items-center gap-3">
                   {!actualmente && (
@@ -438,7 +437,7 @@ export default function AdminExperienciaApp() {
                       }}
                       className="rounded border-border-strong text-accent focus:ring-ring"
                     />
-                    Actualmente en curso
+                    En curso
                   </label>
                 </div>
               </div>
@@ -451,9 +450,8 @@ export default function AdminExperienciaApp() {
                   value={fechaFin}
                   onChange={(e) => setFechaFin(e.target.value.slice(0, 4))}
                   disabled={actualmente}
-                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                    actualmente ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${actualmente ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 />
               ) : (
                 <input
@@ -461,9 +459,8 @@ export default function AdminExperienciaApp() {
                   value={fechaFin}
                   onChange={(e) => setFechaFin(e.target.value)}
                   disabled={actualmente}
-                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                    actualmente ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${actualmente ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 />
               )}
             </div>
@@ -474,19 +471,15 @@ export default function AdminExperienciaApp() {
             <div className="flex justify-between items-center mb-3">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">
-                  Cargos o posiciones específicas (opcional)
+                  Cargos o posiciones específicas
                 </h3>
-                <p className="text-xs text-muted-subtle">
-                  Permite desglosar diferentes roles o ascensos dentro de la misma
-                  experiencia.
-                </p>
               </div>
               <button
                 type="button"
                 onClick={agregarPosicion}
                 className="text-xs bg-surface border border-border-strong text-accent hover:bg-surface-hover px-2.5 py-1.5 rounded-md font-medium transition-colors"
               >
-                + Agregar cargo
+                + Agregar
               </button>
             </div>
 
@@ -652,9 +645,8 @@ export default function AdminExperienciaApp() {
                               )
                             }
                             disabled={pos.actualmente}
-                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                              pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
                           />
                         ) : (
                           <input
@@ -668,9 +660,8 @@ export default function AdminExperienciaApp() {
                               )
                             }
                             disabled={pos.actualmente}
-                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                              pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border border-border-strong bg-surface rounded-md px-2.5 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${pos.actualmente ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
                           />
                         )}
                       </div>
@@ -693,8 +684,8 @@ export default function AdminExperienciaApp() {
               {guardando
                 ? "Guardando..."
                 : editandoId
-                ? "Actualizar experiencia"
-                : "Crear experiencia"}
+                  ? "Actualizar experiencia"
+                  : "Crear experiencia"}
             </button>
             {editandoId && (
               <button
