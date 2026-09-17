@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 import ContactoSection from "@/features/contacto/ContactoSection";
 import ExperienciaSection from "@/features/experiencia/ExperienciaSection";
 import HabilidadesSection from "@/features/habilidades/HabilidadesSection";
@@ -26,6 +27,7 @@ export default function Home() {
         <ContactoSection />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 }
