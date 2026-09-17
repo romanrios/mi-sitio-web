@@ -1,17 +1,26 @@
 import { db } from "@/app/db";
 import { contacto } from "@/app/db/schema";
 import { auth } from "@/auth";
-import { contactoDefault } from "@/content/contacto";
+import { contactoItemsDefault, resolverUrlContacto } from "@/content/contacto";
 import { isAdmin } from "@/lib/auth-utils";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const registro = await db.query.contacto.findFirst();
-  if (!registro) {
-    return NextResponse.json(contactoDefault);
+  try {
+    const items = await db.query.contacto.findMany({
+      orderBy: [asc(contacto.orden), asc(contacto.id)],
+    });
+
+    if (items.length === 0) {
+      return NextResponse.json(contactoItemsDefault);
+    }
+
+    return NextResponse.json(items);
+  } catch (err) {
+    console.error("Error al obtener contactos:", err);
+    return NextResponse.json(contactoItemsDefault);
   }
-  return NextResponse.json(registro);
 }
 
 export async function POST(request: NextRequest) {
@@ -23,49 +32,57 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  if (!body.ubicacion || typeof body.ubicacion !== "string" || !body.ubicacion.trim()) {
-    return NextResponse.json({ error: "La ubicación es requerida." }, { status: 400 });
+  // Reordenamiento masivo si el body es un array de { id, orden }
+  if (Array.isArray(body)) {
+    for (const item of body) {
+      if (typeof item.id === "number" && typeof item.orden === "number") {
+        await db
+          .update(contacto)
+          .set({ orden: item.orden })
+          .where(eq(contacto.id, item.id));
+      }
+    }
+    const actualizados = await db.query.contacto.findMany({
+      orderBy: [asc(contacto.orden), asc(contacto.id)],
+    });
+    return NextResponse.json(actualizados);
   }
 
-  if (!body.whatsapp || typeof body.whatsapp !== "string" || !body.whatsapp.trim()) {
-    return NextResponse.json({ error: "El WhatsApp es requerido." }, { status: 400 });
+  const tipo = typeof body.tipo === "string" ? body.tipo.trim() : "otro";
+  const valor = typeof body.valor === "string" ? body.valor.trim() : "";
+  const titulo = typeof body.titulo === "string" && body.titulo.trim() ? body.titulo.trim() : null;
+  const urlPersonalizada = typeof body.url === "string" && body.url.trim() ? body.url.trim() : null;
+
+  if (!valor) {
+    return NextResponse.json(
+      { error: "El valor o texto del contacto es requerido." },
+      { status: 400 }
+    );
   }
 
-  if (!body.correo || typeof body.correo !== "string" || !body.correo.trim()) {
-    return NextResponse.json({ error: "El correo es requerido." }, { status: 400 });
+  const urlFinal = resolverUrlContacto(tipo, valor, urlPersonalizada);
+
+  // Obtener último orden si no se especificó
+  let ordenFinal = typeof body.orden === "number" ? body.orden : 0;
+  if (ordenFinal === 0) {
+    const todos = await db.query.contacto.findMany({
+      orderBy: [asc(contacto.orden)],
+    });
+    const maxOrden = todos.reduce((max, i) => Math.max(max, i.orden), 0);
+    ordenFinal = maxOrden + 1;
   }
 
-  if (!body.linkedin || typeof body.linkedin !== "string" || !body.linkedin.trim()) {
-    return NextResponse.json({ error: "El enlace a LinkedIn es requerido." }, { status: 400 });
-  }
+  const [nuevo] = await db
+    .insert(contacto)
+    .values({
+      tipo,
+      titulo,
+      valor,
+      url: urlFinal,
+      orden: ordenFinal,
+      creadoEn: new Date().toISOString(),
+    })
+    .returning();
 
-  if (!body.github || typeof body.github !== "string" || !body.github.trim()) {
-    return NextResponse.json({ error: "El enlace a GitHub es requerido." }, { status: 400 });
-  }
-
-  const datos = {
-    ubicacion: body.ubicacion.trim(),
-    whatsapp: body.whatsapp.trim(),
-    correo: body.correo.trim(),
-    linkedin: body.linkedin.trim(),
-    github: body.github.trim(),
-    actualizadoEn: new Date().toISOString(),
-  };
-
-  const existente = await db.query.contacto.findFirst();
-
-  let resultado;
-  if (existente) {
-    const [actualizado] = await db
-      .update(contacto)
-      .set(datos)
-      .where(eq(contacto.id, existente.id))
-      .returning();
-    resultado = actualizado;
-  } else {
-    const [nuevo] = await db.insert(contacto).values(datos).returning();
-    resultado = nuevo;
-  }
-
-  return NextResponse.json(resultado);
+  return NextResponse.json(nuevo, { status: 201 });
 }

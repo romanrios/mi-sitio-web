@@ -50,8 +50,11 @@ export async function POST(request: NextRequest) {
   let toEmail = process.env.CONTACT_RECEIVER_EMAIL;
   if (!toEmail) {
     try {
-      const datosContacto = await db.query.contacto.findFirst();
-      toEmail = datosContacto?.correo || "romanrios@live.com";
+      const items = await db.query.contacto.findMany();
+      const correoItem =
+        items.find((i) => i.tipo.toLowerCase() === "correo") ||
+        items.find((i) => i.valor.includes("@"));
+      toEmail = correoItem?.valor || "romanrios@live.com";
     } catch {
       toEmail = "romanrios@live.com";
     }
