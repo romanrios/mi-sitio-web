@@ -34,27 +34,31 @@ export default async function ProyectosSection() {
   }
 
   return (
-    <section id="proyectos" className="w-full max-w-4xl space-y-12 scroll-mt-24">
-      {categoriasConProyectos.map(({ categoria, items }) => (
-        <div key={categoria}>
-          <h2 className="text-2xl font-bold text-foreground mb-6">
-            {categoria}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {items.map((proyecto) => (
-              <ProyectoItem
-                key={proyecto.id}
-                titulo={proyecto.titulo}
-                descripcion={proyecto.descripcion}
-                imagenUrl={proyecto.imagenUrl}
-                galeria={proyecto.galeria}
-                tags={proyecto.tags}
-                enlaces={proyecto.enlaces}
-              />
-            ))}
+    <section id="proyectos" className="w-full max-w-4xl space-y-10 scroll-mt-24">
+      <h2 className="text-2xl font-bold text-foreground">Proyectos</h2>
+
+      <div className="space-y-12">
+        {categoriasConProyectos.map(({ categoria, items }) => (
+          <div key={categoria} className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              {categoria}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {items.map((proyecto) => (
+                <ProyectoItem
+                  key={proyecto.id}
+                  titulo={proyecto.titulo}
+                  descripcion={proyecto.descripcion}
+                  imagenUrl={proyecto.imagenUrl}
+                  galeria={proyecto.galeria}
+                  tags={proyecto.tags}
+                  enlaces={proyecto.enlaces}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 }

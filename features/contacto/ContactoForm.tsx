@@ -42,13 +42,6 @@ export default function ContactoForm() {
 
   return (
     <div className="bg-surface border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
-      <h3 className="text-xl font-bold text-foreground mb-2">
-        Enviame un mensaje
-      </h3>
-      <p className="text-sm text-muted mb-6">
-        Completá el formulario y me pondré en contacto con vos a la brevedad.
-      </p>
-
       {enviado ? (
         <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 rounded-xl p-5 text-center space-y-3 animate-in fade-in duration-300">
           <div className="w-10 h-10 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
