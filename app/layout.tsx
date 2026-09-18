@@ -1,5 +1,6 @@
+import { db } from "@/app/db";
 import { site } from "@/content/site";
-import { themeInitScript } from "@/lib/theme";
+import { getThemeInitScript, type DefaultThemeSetting } from "@/lib/theme";
 import type { Metadata } from "next";
 import { Fira_Code, Inter, Montserrat } from "next/font/google";
 import "./globals.css";
@@ -27,19 +28,39 @@ export const metadata: Metadata = {
   description: site.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let defaultTheme: DefaultThemeSetting = "dark";
+
+  try {
+    const registro = await db.query.configuracion.findFirst();
+    if (
+      registro?.temaDefault &&
+      ["dark", "light", "system"].includes(registro.temaDefault)
+    ) {
+      defaultTheme = registro.temaDefault as DefaultThemeSetting;
+    }
+  } catch (error) {
+    console.error("Error al obtener tema por defecto en RootLayout:", error);
+  }
+
+  const isDarkDefault = defaultTheme === "dark";
+
   return (
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${montserrat.variable} ${inter.variable} ${firaCode.variable} h-full antialiased`}
+      className={`${isDarkDefault ? "dark " : ""}${montserrat.variable} ${inter.variable} ${firaCode.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: getThemeInitScript(defaultTheme),
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         {children}
