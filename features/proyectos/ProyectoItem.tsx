@@ -7,6 +7,7 @@ import {
   ProyectoGaleriaItem,
   ProyectoTagItem,
 } from "@/lib/proyectos-utils";
+import Image from "next/image";
 import { useState } from "react";
 
 type ProyectoItemProps = {
@@ -32,10 +33,12 @@ export default function ProyectoItem({
     <>
       <Card className="overflow-hidden flex flex-col group transition-all duration-200 hover:shadow-md border-border hover:border-border-strong">
         <div className="relative overflow-hidden w-full h-44 bg-surface-hover">
-          <img
+          <Image
             src={imagenUrl}
             alt={titulo}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
         <div className="p-5 flex-1 flex flex-col">

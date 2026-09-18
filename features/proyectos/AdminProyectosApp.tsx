@@ -1,6 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import ImageUploader from "@/components/ui/ImageUploader";
 import {
   ProyectoData,
   ProyectoEnlaceItem,
@@ -120,8 +121,14 @@ export default function AdminProyectosApp() {
 
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
-    setGuardando(true);
     setError("");
+
+    if (!imagenUrl.trim()) {
+      setError("La imagen principal (portada) es requerida.");
+      return;
+    }
+
+    setGuardando(true);
 
     // Validar y limpiar galería
     const galeriaLimpia = galeria
@@ -234,19 +241,15 @@ export default function AdminProyectosApp() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm text-muted mb-1 font-medium">
-              URL de imagen principal (portada)
-            </label>
-            <input
-              type="url"
-              value={imagenUrl}
-              onChange={(e) => setImagenUrl(e.target.value)}
-              required
-              placeholder="https://..."
-              className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
+          <ImageUploader
+            value={imagenUrl}
+            onChange={setImagenUrl}
+            carpeta="proyectos"
+            label="Imagen principal (portada)"
+            helperText="Se subirá a Cloudinary (carpeta mi-sitio-web/proyectos) y se usará como portada y miniatura."
+            aspectRatio="video"
+            disabled={guardando}
+          />
 
           <div>
             <label className="block text-sm text-muted mb-1 font-medium">
@@ -320,6 +323,41 @@ export default function AdminProyectosApp() {
                         }
                         className="flex-1 text-xs border border-border-strong bg-surface rounded px-2 py-1.5 text-foreground"
                       />
+                      {item.tipo === "imagen" && (
+                        <label
+                          className="text-xs bg-surface border border-border-strong hover:bg-surface-hover px-2 py-1.5 rounded cursor-pointer text-foreground shrink-0 flex items-center gap-1 transition-colors"
+                          title="Subir archivo a Cloudinary"
+                        >
+                          <span>Subir</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const formData = new FormData();
+                              formData.append("file", file);
+                              formData.append("carpeta", "proyectos");
+                              try {
+                                const res = await fetch("/api/upload", {
+                                  method: "POST",
+                                  body: formData,
+                                });
+                                const data = await res.json();
+                                if (data.url) {
+                                  actualizarItemGaleria(index, "url", data.url);
+                                } else if (data.error) {
+                                  alert(data.error);
+                                }
+                              } catch (err) {
+                                console.error("Error al subir imagen:", err);
+                                alert("Error inesperado al subir la imagen.");
+                              }
+                            }}
+                          />
+                        </label>
+                      )}
                       <button
                         type="button"
                         onClick={() => eliminarItemGaleria(index)}
@@ -492,6 +530,7 @@ export default function AdminProyectosApp() {
               key={proyecto.id}
               className="rounded-md p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={proyecto.imagenUrl}
                 alt={proyecto.titulo}

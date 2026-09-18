@@ -1,5 +1,6 @@
 import { db } from "@/app/db";
 import { heroDefault, HeroData } from "@/content/hero";
+import Image from "next/image";
 
 export default async function HeroSection() {
   let heroData: HeroData = heroDefault;
@@ -40,11 +41,14 @@ export default async function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 text-center sm:text-left">
           {/* Foto de perfil enmarcada en círculo */}
           <div className="relative shrink-0">
-            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-border-strong shadow-lg ring-4 ring-accent/15 bg-surface">
-              <img
+            <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-border-strong shadow-lg ring-4 ring-accent/15 bg-surface">
+              <Image
                 src={heroData.imagenUrl}
                 alt={heroData.titulo}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 640px) 128px, 144px"
+                className="object-cover"
               />
             </div>
           </div>

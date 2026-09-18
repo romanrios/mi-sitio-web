@@ -7,6 +7,7 @@ import {
   ProyectoGaleriaItem,
   ProyectoTagItem,
 } from "@/lib/proyectos-utils";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type ProyectoModalProps = {
@@ -125,10 +126,13 @@ export default function ProyectoModal({
           {/* Visor de Galería */}
           <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
             {elementoActual.tipo === "imagen" ? (
-              <img
+              <Image
                 src={elementoActual.url}
                 alt={`${titulo} - elemento ${indiceActivo + 1}`}
-                className="w-full h-full object-contain"
+                fill
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-contain"
+                priority={indiceActivo === 0}
               />
             ) : elementoActual.tipo === "youtube" ? (
               <iframe

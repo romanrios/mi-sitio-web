@@ -6,13 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:images": "node scripts/migrate-images-to-cloudinary.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
+    "cloudinary": "^2.11.0",
     "drizzle-orm": "^0.45.2",
     "next": "16.3.4",
     "next-auth": "^5.0.0-beta.32",
+    "next-cloudinary": "^6.19.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.28.1"

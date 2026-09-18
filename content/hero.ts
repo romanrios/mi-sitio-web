@@ -8,7 +8,7 @@ export type HeroData = {
 };
 
 export const heroDefault: HeroData = {
-  imagenUrl: "https://romanrios.github.io/assets/images/perfil.png",
+  imagenUrl: "https://res.cloudinary.com/dzriqyi6d/image/upload/v1789746908/mi-sitio-web/hero/pivgn8t7n6ro4touhkvx.png",
   titulo: "Román Ríos",
   subtitulo: "Desarrollador de Software /\nDiseñador de Comunicación Visual",
   descripcion:

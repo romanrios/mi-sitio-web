@@ -1,6 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import ImageUploader from "@/components/ui/ImageUploader";
 import { heroDefault, HeroData } from "@/content/hero";
 import { useEffect, useState } from "react";
 
@@ -133,6 +134,7 @@ export default function AdminHeroApp() {
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-border shadow-md ring-4 ring-accent/10 bg-surface shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imagenUrl || heroDefault.imagenUrl}
                 alt={titulo || "Foto de perfil"}
@@ -161,22 +163,15 @@ export default function AdminHeroApp() {
 
         {/* Campos del formulario */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-muted mb-1">
-              URL de la imagen de perfil
-            </label>
-            <input
-              type="url"
-              value={imagenUrl}
-              onChange={(e) => setImagenUrl(e.target.value)}
-              placeholder="https://ejemplo.com/perfil.png"
-              className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-              required
-            />
-            <p className="text-[11px] text-muted-subtle mt-1">
-              Se mostrará enmarcada dentro de un círculo con borde y sombra suave.
-            </p>
-          </div>
+          <ImageUploader
+            value={imagenUrl}
+            onChange={setImagenUrl}
+            carpeta="hero"
+            label="Foto de perfil"
+            helperText="Se subirá a Cloudinary (carpeta mi-sitio-web/hero) y se mostrará enmarcada dentro de un círculo con borde y sombra suave."
+            aspectRatio="square"
+            disabled={guardando}
+          />
 
           <div>
             <label className="block text-xs font-semibold text-muted mb-1">
