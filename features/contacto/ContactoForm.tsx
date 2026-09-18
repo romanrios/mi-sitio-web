@@ -6,6 +6,7 @@ export default function ContactoForm() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [sitioWeb, setSitioWeb] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState("");
@@ -21,11 +22,21 @@ export default function ContactoForm() {
       const res = await fetch("/api/mensajes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, email, mensaje }),
+        body: JSON.stringify({
+          nombre,
+          email,
+          mensaje,
+          sitio_web: sitioWeb,
+        }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        if (res.status === 429) {
+          throw new Error(
+            "Has enviado varios mensajes recientemente. Por favor, espera unos minutos antes de intentar de nuevo."
+          );
+        }
+        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Ocurrió un error al enviar el mensaje.");
       }
 
@@ -33,8 +44,11 @@ export default function ContactoForm() {
       setNombre("");
       setEmail("");
       setMensaje("");
-    } catch (err: any) {
-      setError(err.message || "No se pudo enviar el mensaje.");
+      setSitioWeb("");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "No se pudo enviar el mensaje.";
+      setError(msg);
     } finally {
       setEnviando(false);
     }
@@ -73,6 +87,24 @@ export default function ContactoForm() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Campo Honeypot para mitigación de spam automatizado (oculto visualmente y para lectores de pantalla) */}
+          <div
+            className="absolute opacity-0 -z-50 pointer-events-none w-0 h-0 overflow-hidden"
+            style={{ position: "absolute", left: "-9999px" }}
+            aria-hidden="true"
+          >
+            <label htmlFor="sitio_web">No completar este campo</label>
+            <input
+              id="sitio_web"
+              name="sitio_web"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={sitioWeb}
+              onChange={(e) => setSitioWeb(e.target.value)}
+            />
+          </div>
+
           <div>
             <label
               htmlFor="nombre"
@@ -84,6 +116,7 @@ export default function ContactoForm() {
               id="nombre"
               type="text"
               required
+              maxLength={100}
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Tu nombre"
@@ -102,6 +135,7 @@ export default function ContactoForm() {
               id="email"
               type="email"
               required
+              maxLength={254}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@correo.com"
@@ -119,6 +153,7 @@ export default function ContactoForm() {
             <textarea
               id="mensaje"
               required
+              maxLength={5000}
               rows={4}
               value={mensaje}
               onChange={(e) => setMensaje(e.target.value)}
