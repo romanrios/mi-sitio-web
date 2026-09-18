@@ -57,7 +57,5 @@ El gate vive en `app/admin/layout.tsx`. Nuevas áreas pueden ser `app/admin/proy
 TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, ADMIN_EMAILS, RESEND_API_KEY
 
 ## Pendientes / ideas futuras
-- Filtrar mensajes por usuario
-- Editar/borrar mensajes propios
 - Rate limiting en POST
 - Dominio propio

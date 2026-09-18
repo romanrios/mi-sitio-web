@@ -64,6 +64,13 @@
       "when": 1789593000000,
       "tag": "0008_rename_cards_to_proyectos",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1789731763341,
+      "tag": "0009_pale_ulik",
+      "breakpoints": true
     }
   ]
 }
