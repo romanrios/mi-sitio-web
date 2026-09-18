@@ -61,9 +61,52 @@ export default async function HeroSection() {
         </div>
 
         {/* Texto de párrafo principal */}
-        <p className="text-xs sm:text-sm text-muted leading-relaxed whitespace-pre-line text-pretty">
+        <p className="text-sm sm:text-base text-muted leading-relaxed whitespace-pre-line text-pretty">
           {heroData.descripcion}
         </p>
+
+        {/* Accesos directos a Proyectos y Contacto */}
+        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 justify-center sm:justify-start">
+          <a
+            href="#proyectos"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-accent-foreground font-medium text-sm transition-all shadow-xs group cursor-pointer"
+          >
+            <span>Ver proyectos</span>
+            <svg
+              className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+          </a>
+
+          <a
+            href="#contacto"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-border-strong/60 hover:border-accent bg-surface/70 hover:bg-surface-hover text-foreground font-medium text-sm transition-all shadow-xs group cursor-pointer"
+          >
+            <span>Contacto</span>
+            <svg
+              className="w-4 h-4 text-muted group-hover:text-accent transition-colors"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
 
       {/* Indicador de scroll para explorar */}
@@ -73,9 +116,7 @@ export default async function HeroSection() {
           className="text-xs font-medium text-muted hover:text-foreground flex flex-col items-center gap-1.5 transition-colors group cursor-pointer"
           aria-label="Ir a la siguiente sección"
         >
-          <span className="text-[11px] uppercase tracking-wider opacity-70 group-hover:opacity-100">
-            Explorar
-          </span>
+
           <svg
             className="w-4 h-4 animate-bounce text-muted group-hover:text-accent transition-colors"
             fill="none"
