@@ -2,6 +2,7 @@
 
 import Card from "@/components/ui/Card";
 import ImageUploader from "@/components/ui/ImageUploader";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import {
   ProyectoData,
   ProyectoEnlaceItem,
@@ -514,13 +515,21 @@ export default function AdminProyectosApp() {
         Proyectos existentes
       </h2>
 
-      {cargando && <p className="text-muted-subtle">Cargando...</p>}
+      {cargando && (
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonCard key={i} variant="row" />
+          ))}
+        </div>
+      )}
+
       {!cargando && proyectosList.length === 0 && (
         <p className="text-muted-subtle">No hay proyectos creados aún.</p>
       )}
 
-      <div className="space-y-3">
-        {proyectosList.map((proyecto) => {
+      {!cargando && proyectosList.length > 0 && (
+        <div className="space-y-3">
+          {proyectosList.map((proyecto) => {
           const numImagenes = proyecto.galeria?.filter((g) => g.tipo === "imagen").length ?? 0;
           const numVideos = proyecto.galeria?.filter((g) => g.tipo === "youtube").length ?? 0;
           const numEnlaces = proyecto.enlaces?.length ?? 0;
@@ -596,7 +605,8 @@ export default function AdminProyectosApp() {
             </Card>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

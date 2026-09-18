@@ -1,6 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import {
   ExperienciaData,
   formatearPeriodo,
@@ -705,7 +706,14 @@ export default function AdminExperienciaApp() {
         Experiencias registradas
       </h2>
 
-      {cargando && <p className="text-muted-subtle text-sm">Cargando...</p>}
+      {cargando && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} variant="default" />
+          ))}
+        </div>
+      )}
+
       {!cargando && experiencias.length === 0 && (
         <p className="text-muted-subtle text-sm">
           No hay experiencias creadas aún. Podés crear la primera utilizando el
@@ -713,8 +721,9 @@ export default function AdminExperienciaApp() {
         </p>
       )}
 
-      <div className="space-y-3">
-        {experiencias.map((exp) => (
+      {!cargando && experiencias.length > 0 && (
+        <div className="space-y-3">
+          {experiencias.map((exp) => (
           <Card key={exp.id} className="p-4 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-1">
@@ -786,7 +795,8 @@ export default function AdminExperienciaApp() {
             )}
           </Card>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
