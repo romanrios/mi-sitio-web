@@ -1,6 +1,8 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import SkeletonCard from "@/components/ui/SkeletonCard";
+import Spinner from "@/components/ui/Spinner";
 import {
   ContactoItem,
   contactoItemsDefault,
@@ -287,13 +289,16 @@ export default function AdminContactoApp() {
               <button
                 type="submit"
                 disabled={guardando}
-                className="bg-accent text-accent-foreground px-5 py-2 rounded-md hover:bg-accent-hover font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                className="bg-accent text-accent-foreground px-5 py-2 rounded-md hover:bg-accent-hover font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer shadow-xs flex items-center gap-2"
               >
-                {guardando
-                  ? "Guardando..."
-                  : editandoId
-                  ? "Guardar cambios"
-                  : "+ Agregar enlace"}
+                {guardando && <Spinner size="sm" color="current" />}
+                <span>
+                  {guardando
+                    ? "Guardando..."
+                    : editandoId
+                    ? "Guardar cambios"
+                    : "+ Agregar enlace"}
+                </span>
               </button>
 
               {editandoId && (
@@ -317,14 +322,19 @@ export default function AdminContactoApp() {
             Enlaces actuales ({items.length})
           </h3>
           {reordenando && (
-            <span className="text-xs text-muted-subtle animate-pulse">
-              Guardando orden...
+            <span className="text-xs text-muted-subtle flex items-center gap-1.5">
+              <Spinner size="sm" color="accent" />
+              <span>Guardando orden...</span>
             </span>
           )}
         </div>
 
         {cargando ? (
-          <p className="text-sm text-muted">Cargando enlaces...</p>
+          <div className="space-y-2.5">
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} variant="row" />
+            ))}
+          </div>
         ) : items.length === 0 ? (
           <p className="text-sm text-muted-subtle italic">
             No hay enlaces configurados. Agregá el primero arriba.

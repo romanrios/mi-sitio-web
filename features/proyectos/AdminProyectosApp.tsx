@@ -3,6 +3,7 @@
 import Card from "@/components/ui/Card";
 import ImageUploader from "@/components/ui/ImageUploader";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import Spinner from "@/components/ui/Spinner";
 import {
   ProyectoData,
   ProyectoEnlaceItem,
@@ -494,9 +495,16 @@ export default function AdminProyectosApp() {
             <button
               type="submit"
               disabled={guardando}
-              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 font-medium cursor-pointer"
+              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 font-medium cursor-pointer flex items-center gap-2"
             >
-              {guardando ? "Guardando..." : editandoId ? "Actualizar proyecto" : "Crear proyecto"}
+              {guardando && <Spinner size="sm" color="current" />}
+              <span>
+                {guardando
+                  ? "Guardando..."
+                  : editandoId
+                  ? "Actualizar proyecto"
+                  : "Crear proyecto"}
+              </span>
             </button>
             {editandoId && (
               <button

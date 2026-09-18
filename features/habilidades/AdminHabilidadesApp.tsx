@@ -1,6 +1,8 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import SkeletonCard from "@/components/ui/SkeletonCard";
+import Spinner from "@/components/ui/Spinner";
 import { HabilidadSeccionData } from "@/lib/habilidades-utils";
 import { useEffect, useState } from "react";
 
@@ -403,13 +405,16 @@ export default function AdminHabilidadesApp() {
             <button
               type="submit"
               disabled={guardando}
-              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 text-sm font-medium transition-colors"
+              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 text-sm font-medium transition-colors flex items-center gap-2"
             >
-              {guardando
-                ? "Guardando..."
-                : editandoId
-                  ? "Actualizar sección"
-                  : "Crear sección"}
+              {guardando && <Spinner size="sm" color="current" />}
+              <span>
+                {guardando
+                  ? "Guardando..."
+                  : editandoId
+                    ? "Actualizar sección"
+                    : "Crear sección"}
+              </span>
             </button>
             {editandoId && (
               <button
@@ -429,15 +434,23 @@ export default function AdminHabilidadesApp() {
         Secciones registradas
       </h2>
 
-      {cargando && <p className="text-muted-subtle text-sm">Cargando...</p>}
+      {cargando && (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} variant="default" />
+          ))}
+        </div>
+      )}
+
       {!cargando && secciones.length === 0 && (
         <p className="text-muted-subtle text-sm">
           No hay secciones de habilidades creadas aún. Podés crear la primera utilizando el formulario superior.
         </p>
       )}
 
-      <div className="space-y-4">
-        {secciones.map((sec) => (
+      {!cargando && secciones.length > 0 && (
+        <div className="space-y-4">
+          {secciones.map((sec) => (
           <Card key={sec.id} className="p-5 space-y-3">
             <div className="flex items-start justify-between gap-2 border-b border-border pb-3">
               <div>
@@ -507,7 +520,8 @@ export default function AdminHabilidadesApp() {
             )}
           </Card>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

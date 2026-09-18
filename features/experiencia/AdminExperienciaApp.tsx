@@ -2,6 +2,7 @@
 
 import Card from "@/components/ui/Card";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import Spinner from "@/components/ui/Spinner";
 import {
   ExperienciaData,
   formatearPeriodo,
@@ -680,13 +681,16 @@ export default function AdminExperienciaApp() {
             <button
               type="submit"
               disabled={guardando}
-              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 text-sm font-medium transition-colors"
+              className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent-hover disabled:opacity-50 text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
             >
-              {guardando
-                ? "Guardando..."
-                : editandoId
-                  ? "Actualizar experiencia"
-                  : "Crear experiencia"}
+              {guardando && <Spinner size="sm" color="current" />}
+              <span>
+                {guardando
+                  ? "Guardando..."
+                  : editandoId
+                    ? "Actualizar experiencia"
+                    : "Crear experiencia"}
+              </span>
             </button>
             {editandoId && (
               <button

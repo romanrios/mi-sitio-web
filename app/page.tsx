@@ -41,6 +41,40 @@ function ExperienciaSkeleton() {
   );
 }
 
+function HabilidadesSkeleton() {
+  return (
+    <section className="w-full bg-hero-bg border-y border-border py-16 sm:py-20 px-4 flex justify-center">
+      <div className="w-full max-w-2xl">
+        {/* Título de sección */}
+        <div className="h-8 w-36 bg-surface-hover rounded-md mb-6 animate-pulse" />
+
+        <div className="space-y-8">
+          {[1, 2].map((sec) => (
+            <div key={sec} className="space-y-4">
+              <div className="h-6 w-28 bg-surface-hover rounded-md border-b border-border pb-2 animate-pulse" />
+              <div className="space-y-4 pl-1">
+                <div className="space-y-2">
+                  <div className="h-3 w-20 bg-surface-hover rounded animate-pulse" />
+                  <div className="flex flex-wrap gap-2">
+                    {["w-16", "w-20", "w-14", "w-24", "w-16", "w-28", "w-18"].map(
+                      (w, i) => (
+                        <div
+                          key={i}
+                          className={`h-7 ${w} rounded-full bg-surface border border-border animate-pulse`}
+                        />
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProyectosSkeleton() {
   return (
     <section className="w-full max-w-4xl space-y-10 scroll-mt-24">
@@ -73,7 +107,9 @@ export default function Home() {
           </Suspense>
         </div>
 
-        <HabilidadesSection />
+        <Suspense fallback={<HabilidadesSkeleton />}>
+          <HabilidadesSection />
+        </Suspense>
 
         <div className="w-full flex flex-col items-center px-4 py-16 sm:py-20">
           <Suspense fallback={<ProyectosSkeleton />}>

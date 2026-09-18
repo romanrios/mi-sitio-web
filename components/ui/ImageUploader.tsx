@@ -1,5 +1,6 @@
 "use client";
 
+import Spinner from "@/components/ui/Spinner";
 import { useRef, useState } from "react";
 
 type CarpetaCloudinary = "hero" | "proyectos" | "galeria" | "general";
@@ -202,7 +203,7 @@ export default function ImageUploader({
         >
           {subiendo ? (
             <div className="flex flex-col items-center gap-2 py-2">
-              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              <Spinner size="lg" color="accent" />
               <p className="text-xs font-medium text-foreground">
                 Subiendo a Cloudinary...
               </p>

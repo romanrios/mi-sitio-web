@@ -2,6 +2,7 @@
 
 import Card from "@/components/ui/Card";
 import ImageUploader from "@/components/ui/ImageUploader";
+import Spinner from "@/components/ui/Spinner";
 import { heroDefault, HeroData } from "@/content/hero";
 import { useEffect, useState } from "react";
 
@@ -98,8 +99,35 @@ export default function AdminHeroApp() {
 
   if (cargando) {
     return (
-      <div className="w-full max-w-2xl text-center py-12">
-        <p className="text-muted text-sm">Cargando datos del Hero...</p>
+      <div className="w-full max-w-2xl space-y-6">
+        <div>
+          <div className="h-7 w-36 bg-surface-hover rounded-md mb-2 animate-pulse" />
+          <div className="h-4 w-72 bg-surface-hover rounded animate-pulse" />
+        </div>
+
+        {/* Vista previa skeleton */}
+        <div className="bg-surface/50 border border-border rounded-lg p-5 sm:p-6 animate-pulse space-y-4">
+          <div className="h-3.5 w-24 bg-surface-hover rounded" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-surface-hover shrink-0" />
+            <div className="flex-1 space-y-2 w-full">
+              <div className="h-7 w-1/2 bg-surface-hover rounded" />
+              <div className="h-4 w-1/3 bg-surface-hover rounded" />
+            </div>
+          </div>
+          <div className="pt-4 border-t border-border/60 space-y-2">
+            <div className="h-3.5 w-full bg-surface-hover rounded" />
+            <div className="h-3.5 w-4/5 bg-surface-hover rounded" />
+          </div>
+        </div>
+
+        {/* Inputs skeleton */}
+        <div className="space-y-4 animate-pulse">
+          <div className="h-16 w-full bg-surface-hover rounded-lg" />
+          <div className="h-10 w-full bg-surface-hover rounded-md" />
+          <div className="h-14 w-full bg-surface-hover rounded-md" />
+          <div className="h-28 w-full bg-surface-hover rounded-md" />
+        </div>
       </div>
     );
   }
@@ -226,9 +254,10 @@ export default function AdminHeroApp() {
           <button
             type="submit"
             disabled={guardando}
-            className="bg-accent text-accent-foreground px-6 py-2.5 rounded-md hover:bg-accent-hover font-medium transition-colors disabled:opacity-50 text-sm shadow-sm"
+            className="bg-accent text-accent-foreground px-6 py-2.5 rounded-md hover:bg-accent-hover font-medium transition-colors disabled:opacity-50 text-sm shadow-sm flex items-center gap-2 cursor-pointer"
           >
-            {guardando ? "Guardando cambios..." : "Guardar cambios"}
+            {guardando && <Spinner size="sm" color="current" />}
+            <span>{guardando ? "Guardando cambios..." : "Guardar cambios"}</span>
           </button>
         </div>
       </form>
