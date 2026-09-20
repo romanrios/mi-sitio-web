@@ -67,8 +67,8 @@ export const TIPOS_CONTACTO: {
   {
     tipo: "sitio",
     label: "Sitio Web",
-    placeholderValor: "romanrios.dev",
-    placeholderUrl: "https://romanrios.dev",
+    placeholderValor: "romanrios.com.ar",
+    placeholderUrl: "https://romanrios.com.ar",
   },
   {
     tipo: "instagram",

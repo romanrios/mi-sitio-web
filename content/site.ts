@@ -1,4 +1,37 @@
 export const site = {
   name: "Román Ríos",
-  description: "Desarrollo de Software y Diseño de Comunicación Visual.",
+  title: "Román Ríos | Desarrollo de Software & Diseño Visual",
+  description:
+    "Portafolio profesional de Román Ríos. Desarrollador de Software y Diseñador de Comunicación Visual en Santa Fe, Argentina. Especializado en desarrollo web, aplicaciones modernas y diseño multimedia.",
+  url: "https://romanrios.com.ar",
+  locale: "es_AR",
+  author: {
+    name: "Román Ríos",
+    url: "https://romanrios.com.ar",
+    email: "romanrios@live.com",
+    role: "Desarrollador de Software & Diseñador de Comunicación Visual",
+  },
+  keywords: [
+    "Román Ríos",
+    "Desarrollador de Software",
+    "Diseñador de Comunicación Visual",
+    "Desarrollo Web",
+    "Frontend",
+    "Fullstack",
+    "Portfolio",
+    "Portafolio",
+    "Santa Fe",
+    "Argentina",
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+    "UI/UX",
+    "Diseño Gráfico",
+  ],
+  links: {
+    github: "https://github.com/romanrios",
+    linkedin: "https://linkedin.com/in/romanrios",
+    email: "mailto:romanrios@live.com",
+  },
 };

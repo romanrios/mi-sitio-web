@@ -8,8 +8,55 @@ import HabilidadesSection from "@/features/habilidades/HabilidadesSection";
 import HeroSection from "@/features/hero/HeroSection";
 import ProyectosSection from "@/features/proyectos/ProyectosSection";
 import { Suspense } from "react";
+import { site } from "@/content/site";
 
 export const revalidate = 60;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      url: site.url,
+      name: site.name,
+      description: site.description,
+      inLanguage: "es-AR",
+    },
+    {
+      "@type": "Person",
+      "@id": `${site.url}/#person`,
+      name: site.name,
+      url: site.url,
+      jobTitle: "Desarrollador de Software y Diseñador de Comunicación Visual",
+      description: site.description,
+      image:
+        "https://res.cloudinary.com/dzriqyi6d/image/upload/v1789746908/mi-sitio-web/hero/pivgn8t7n6ro4touhkvx.png",
+      worksFor: {
+        "@type": "Organization",
+        name: "Ministerio de Trabajo de Santa Fe",
+      },
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Santa Fe",
+        addressRegion: "Santa Fe",
+        addressCountry: "AR",
+      },
+      sameAs: [site.links.github, site.links.linkedin],
+      knowsAbout: [
+        "Desarrollo Web",
+        "Software Development",
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Diseño de Comunicación Visual",
+        "UI/UX Design",
+        "Multimedia",
+      ],
+    },
+  ],
+};
 
 function ExperienciaSkeleton() {
   return (
@@ -97,6 +144,10 @@ function ProyectosSkeleton() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <main className="flex-1 flex flex-col">
         <HeroSection />

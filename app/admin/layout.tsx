@@ -1,6 +1,21 @@
 import Container from "@/components/ui/Container";
 import { auth, signIn } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+};
 
 export default async function AdminLayout({
   children,

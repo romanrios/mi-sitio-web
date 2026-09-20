@@ -56,5 +56,8 @@ El gate vive en `app/admin/layout.tsx`. Nuevas áreas pueden ser `app/admin/proy
 ## Variables de entorno (en .env.local y en Vercel)
 TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, ADMIN_EMAILS, RESEND_API_KEY
 
+## Dominio propio
+- Configurado: `romanrios.com.ar` (canónico, OpenGraph, sitemap, robots y metadatos base).
+
 ## Pendientes / ideas futuras
-- Dominio propio
+- Blog / artículos técnicos (opcional)
