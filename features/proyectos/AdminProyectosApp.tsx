@@ -10,9 +10,12 @@ import {
   ProyectoGaleriaItem,
   ProyectoTagItem,
   TipoGaleria,
+  extraerYoutubeId,
+  extraerVimeoId,
 } from "@/lib/proyectos-utils";
 import { CATEGORIA_POR_DEFECTO, CATEGORIAS } from "@/lib/categorias";
 import { useEffect, useState } from "react";
+import GaleriaMiniatura from "./GaleriaMiniatura";
 
 export default function AdminProyectosApp() {
   const [proyectosList, setProyectosList] = useState<ProyectoData[]>([]);
@@ -78,6 +81,9 @@ export default function AdminProyectosApp() {
   }
 
   // Manejo de Galería
+  const [arrastrandoIndex, setArrastrandoIndex] = useState<number | null>(null);
+  const [posicionSobreIndex, setPosicionSobreIndex] = useState<number | null>(null);
+
   function agregarItemGaleria() {
     setGaleria([...galeria, { tipo: "imagen", url: "" }]);
   }
@@ -90,6 +96,52 @@ export default function AdminProyectosApp() {
 
   function eliminarItemGaleria(index: number) {
     setGaleria(galeria.filter((_, i) => i !== index));
+  }
+
+  function moverItemGaleria(origenIndex: number, destinoIndex: number) {
+    if (
+      destinoIndex < 0 ||
+      destinoIndex >= galeria.length ||
+      origenIndex === destinoIndex
+    ) {
+      return;
+    }
+    const nueva = [...galeria];
+    const [itemRemovido] = nueva.splice(origenIndex, 1);
+    nueva.splice(destinoIndex, 0, itemRemovido);
+    setGaleria(nueva);
+  }
+
+  function moverItemPaso(index: number, delta: -1 | 1) {
+    moverItemGaleria(index, index + delta);
+  }
+
+  function handleDragStart(e: React.DragEvent, index: number) {
+    setArrastrandoIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (posicionSobreIndex !== index) {
+      setPosicionSobreIndex(index);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent, destinoIndex: number) {
+    e.preventDefault();
+    if (arrastrandoIndex !== null && arrastrandoIndex !== destinoIndex) {
+      moverItemGaleria(arrastrandoIndex, destinoIndex);
+    }
+    setArrastrandoIndex(null);
+    setPosicionSobreIndex(null);
+  }
+
+  function handleDragEnd() {
+    setArrastrandoIndex(null);
+    setPosicionSobreIndex(null);
   }
 
   // Manejo de Tags
@@ -268,106 +320,247 @@ export default function AdminProyectosApp() {
           <div className="border-t border-border pt-4 mt-4 space-y-4">
             {/* Sección Galería */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-semibold text-foreground">
-                  Galería multimedia ({galeria.length})
-                </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <div>
+                  <label className="text-sm font-semibold text-foreground">
+                    Galería multimedia ({galeria.length})
+                  </label>
+                  <p className="text-xs text-muted-subtle mt-0.5">
+                    Imágenes y/o videos de YouTube o Vimeo. Arrastra o usa las flechas para ordenar.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={agregarItemGaleria}
-                  className="text-xs font-medium text-accent hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-medium text-accent hover:underline flex items-center gap-1 cursor-pointer shrink-0"
                 >
                   + Agregar elemento
                 </button>
               </div>
-              <p className="text-xs text-muted-subtle mb-3">
-                Imágenes y/o videos de YouTube o Vimeo para la vista extendida del proyecto.
-              </p>
 
               {galeria.length === 0 ? (
-                <p className="text-xs text-muted-faint italic py-1">
-                  No hay elementos en la galería. Se utilizará la imagen principal.
+                <p className="text-xs text-muted-faint italic py-2">
+                  No hay elementos en la galería. Se utilizará únicamente la imagen principal.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 mt-2">
                   {galeria.map((item, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 p-2 rounded-md bg-surface-hover border border-border"
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`p-2.5 rounded-lg border transition-all ${
+                        arrastrandoIndex === index
+                          ? "opacity-40 border-dashed border-accent bg-accent/5"
+                          : posicionSobreIndex === index && arrastrandoIndex !== index
+                          ? "border-accent bg-surface-hover shadow-sm"
+                          : "bg-surface border-border hover:border-border-strong"
+                      }`}
                     >
-                      <select
-                        value={item.tipo}
-                        onChange={(e) =>
-                          actualizarItemGaleria(
-                            index,
-                            "tipo",
-                            e.target.value as TipoGaleria
-                          )
-                        }
-                        className="text-xs border border-border-strong bg-surface rounded px-2 py-1.5 text-foreground"
-                      >
-                        <option value="imagen">Imagen</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="vimeo">Vimeo</option>
-                      </select>
-                      <input
-                        type="text"
-                        value={item.url}
-                        onChange={(e) =>
-                          actualizarItemGaleria(index, "url", e.target.value)
-                        }
-                        placeholder={
-                          item.tipo === "imagen"
-                            ? "https://ejemplo.com/foto.jpg"
-                            : item.tipo === "youtube"
-                            ? "URL o ID de YouTube (ej. dQw4w9WgXcQ)"
-                            : "URL o ID de Vimeo (ej. 76979871)"
-                        }
-                        className="flex-1 text-xs border border-border-strong bg-surface rounded px-2 py-1.5 text-foreground"
-                      />
-                      {item.tipo === "imagen" && (
-                        <label
-                          className="text-xs bg-surface border border-border-strong hover:bg-surface-hover px-2 py-1.5 rounded cursor-pointer text-foreground shrink-0 flex items-center gap-1 transition-colors"
-                          title="Subir archivo a Cloudinary"
-                        >
-                          <span>Subir</span>
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp,image/gif"
-                            className="hidden"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const formData = new FormData();
-                              formData.append("file", file);
-                              formData.append("carpeta", "proyectos");
-                              try {
-                                const res = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-                                const data = await res.json();
-                                if (data.url) {
-                                  actualizarItemGaleria(index, "url", data.url);
-                                } else if (data.error) {
-                                  alert(data.error);
-                                }
-                              } catch (err) {
-                                console.error("Error al subir imagen:", err);
-                                alert("Error inesperado al subir la imagen.");
-                              }
-                            }}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        {/* Controles de orden + Miniatura */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Botones de orden y badge */}
+                          <div className="flex flex-col items-center justify-center gap-0.5">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moverItemPaso(index, -1)}
+                              className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                              title="Subir (mover antes)"
+                              aria-label={`Subir elemento ${index + 1}`}
+                            >
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M5 15l7-7 7 7"
+                                />
+                              </svg>
+                            </button>
+
+                            <span
+                              className="text-[10px] font-mono font-bold text-muted-subtle cursor-grab active:cursor-grabbing select-none px-1 py-0.5 rounded hover:bg-surface-hover"
+                              title="Arrastrar para reordenar"
+                            >
+                              #{index + 1}
+                            </span>
+
+                            <button
+                              type="button"
+                              disabled={index === galeria.length - 1}
+                              onClick={() => moverItemPaso(index, 1)}
+                              className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                              title="Bajar (mover después)"
+                              aria-label={`Bajar elemento ${index + 1}`}
+                            >
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+
+                          {/* Manija visual de arrastre */}
+                          <div
+                            className="text-muted-faint hover:text-muted cursor-grab active:cursor-grabbing select-none hidden sm:block"
+                            title="Arrastrar para reordenar"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M9 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm6-16a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                          </div>
+
+                          {/* Miniatura visual */}
+                          <GaleriaMiniatura
+                            tipo={item.tipo}
+                            url={item.url}
+                            className="w-20 h-14 sm:w-24 sm:h-16 shrink-0"
                           />
-                        </label>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => eliminarItemGaleria(index)}
-                        className="text-xs text-error hover:underline px-2 py-1 cursor-pointer"
-                        title="Eliminar elemento"
-                      >
-                        ✕
-                      </button>
+                        </div>
+
+                        {/* Inputs y controles de edición */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={item.tipo}
+                              onChange={(e) =>
+                                actualizarItemGaleria(
+                                  index,
+                                  "tipo",
+                                  e.target.value as TipoGaleria
+                                )
+                              }
+                              className="text-xs border border-border-strong bg-surface rounded px-2 py-1.5 text-foreground font-medium shrink-0"
+                            >
+                              <option value="imagen">Imagen</option>
+                              <option value="youtube">YouTube</option>
+                              <option value="vimeo">Vimeo</option>
+                            </select>
+                            <input
+                              type="text"
+                              value={item.url}
+                              onChange={(e) =>
+                                actualizarItemGaleria(index, "url", e.target.value)
+                              }
+                              placeholder={
+                                item.tipo === "imagen"
+                                  ? "https://ejemplo.com/foto.jpg"
+                                  : item.tipo === "youtube"
+                                  ? "URL o ID de YouTube (ej. dQw4w9WgXcQ)"
+                                  : "URL o ID de Vimeo (ej. 76979871)"
+                              }
+                              className="flex-1 min-w-0 text-xs border border-border-strong bg-surface rounded px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                            />
+                          </div>
+
+                          {/* Barra inferior del item: enlace rápido + Subir + Eliminar */}
+                          <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50 text-xs">
+                            <div className="text-[11px] text-muted-subtle truncate flex items-center gap-1.5 min-w-0">
+                              {item.url.trim() ? (
+                                <a
+                                  href={
+                                    item.tipo === "youtube"
+                                      ? `https://www.youtube.com/watch?v=${extraerYoutubeId(item.url)}`
+                                      : item.tipo === "vimeo"
+                                      ? `https://vimeo.com/${extraerVimeoId(item.url).split("?")[0]}`
+                                      : item.url.trim()
+                                  }
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-accent hover:underline flex items-center gap-1 truncate"
+                                  title="Abrir en pestaña nueva"
+                                >
+                                  <span className="truncate">
+                                    {item.tipo === "imagen"
+                                      ? item.url.split("/").pop() || item.url
+                                      : `${item.tipo.toUpperCase()}: ${item.url}`}
+                                  </span>
+                                  <svg
+                                    className="w-3 h-3 shrink-0 opacity-60"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
+                                  </svg>
+                                </a>
+                              ) : (
+                                <span className="italic text-muted-faint">Sin URL definida</span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {item.tipo === "imagen" && (
+                                <label
+                                  className="text-xs bg-surface-hover hover:bg-surface border border-border-strong px-2.5 py-1 rounded cursor-pointer text-foreground flex items-center gap-1 transition-colors"
+                                  title="Subir archivo a Cloudinary"
+                                >
+                                  <span>Subir</span>
+                                  <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/gif"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const formData = new FormData();
+                                      formData.append("file", file);
+                                      formData.append("carpeta", "proyectos");
+                                      try {
+                                        const res = await fetch("/api/upload", {
+                                          method: "POST",
+                                          body: formData,
+                                        });
+                                        const data = await res.json();
+                                        if (data.url) {
+                                          actualizarItemGaleria(index, "url", data.url);
+                                        } else if (data.error) {
+                                          alert(data.error);
+                                        }
+                                      } catch (err) {
+                                        console.error("Error al subir imagen:", err);
+                                        alert("Error inesperado al subir la imagen.");
+                                      }
+                                    }}
+                                  />
+                                </label>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => eliminarItemGaleria(index)}
+                                className="text-xs text-error hover:bg-error/10 px-2 py-1 rounded transition-colors cursor-pointer flex items-center gap-1"
+                                title="Eliminar elemento de la galería"
+                              >
+                                ✕ Quitar
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -442,7 +635,7 @@ export default function AdminProyectosApp() {
                 </button>
               </div>
               <p className="text-xs text-muted-subtle mb-3">
-                Links externos como "Código", "Despliegue en vivo", "Itch.io", etc.
+                Links externos como &quot;Código&quot;, &quot;Despliegue en vivo&quot;, &quot;Itch.io&quot;, etc.
               </p>
 
               {enlaces.length === 0 ? (
@@ -539,7 +732,7 @@ export default function AdminProyectosApp() {
         <div className="space-y-3">
           {proyectosList.map((proyecto) => {
           const numImagenes = proyecto.galeria?.filter((g) => g.tipo === "imagen").length ?? 0;
-          const numVideos = proyecto.galeria?.filter((g) => g.tipo === "youtube").length ?? 0;
+          const numVideos = proyecto.galeria?.filter((g) => g.tipo === "youtube" || g.tipo === "vimeo").length ?? 0;
           const numEnlaces = proyecto.enlaces?.length ?? 0;
 
           return (
