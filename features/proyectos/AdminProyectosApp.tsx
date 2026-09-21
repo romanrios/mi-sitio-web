@@ -6,9 +6,6 @@ import SkeletonCard from "@/components/ui/SkeletonCard";
 import Spinner from "@/components/ui/Spinner";
 import {
   ProyectoData,
-  ProyectoEnlaceItem,
-  ProyectoGaleriaItem,
-  ProyectoTagItem,
   TipoGaleria,
   extraerYoutubeId,
   extraerVimeoId,
@@ -44,7 +41,19 @@ export default function AdminProyectosApp() {
   }
 
   useEffect(() => {
-    cargarProyectos();
+    let ignorar = false;
+    async function inicializar() {
+      const res = await fetch("/api/proyectos");
+      const data = await res.json();
+      if (!ignorar) {
+        setProyectosList(data);
+        setCargando(false);
+      }
+    }
+    inicializar();
+    return () => {
+      ignorar = true;
+    };
   }, []);
 
   function limpiarFormulario() {
@@ -573,7 +582,7 @@ export default function AdminProyectosApp() {
                 Tecnologías usadas ({tags.length})
               </label>
               <p className="text-xs text-muted-subtle mb-2">
-                Escribe una tecnología (ej. React, Unity, Next.js) y presiona Enter o el botón "+".
+                Escribe una tecnología (ej. React, Unity, Next.js) y presiona Enter o el botón &quot;+&quot;.
               </p>
               <div className="flex gap-2 mb-3">
                 <input

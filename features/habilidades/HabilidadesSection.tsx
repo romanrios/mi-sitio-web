@@ -1,9 +1,5 @@
 import { db } from "@/app/db";
-import {
-  habilidadesSecciones,
-  habilidadesSubsecciones,
-  habilidadesTags,
-} from "@/app/db/schema";
+import { habilidadesSecciones } from "@/app/db/schema";
 import { asc } from "drizzle-orm";
 
 export default async function HabilidadesSection() {
