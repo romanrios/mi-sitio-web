@@ -9,6 +9,7 @@ import {
 } from "@/lib/proyectos-utils";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import ProyectoLightbox from "./ProyectoLightbox";
 
 type ProyectoModalProps = {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function ProyectoModal({
   enlaces = [],
 }: ProyectoModalProps) {
   const [indiceActivo, setIndiceActivo] = useState(0);
+  const [lightboxAbierto, setLightboxAbierto] = useState(false);
 
   // Si la galería está vacía, usamos la imagen principal como único elemento
   const itemsGaleria: ProyectoGaleriaItem[] =
@@ -39,18 +41,25 @@ export default function ProyectoModal({
       ? galeria
       : [{ tipo: "imagen", url: imagenUrl, orden: 0 }];
 
-  // Reiniciar el índice al abrir el modal
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  // Reiniciar el índice al abrir el modal y cerrar lightbox si se cierra el modal
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setIndiceActivo(0);
     }
-  }, [isOpen]);
+    setLightboxAbierto(false);
+  }
 
   // Manejo de teclado (Escape para cerrar, flechas para navegar galería)
   useEffect(() => {
     if (!isOpen) return;
 
     function handleKeyDown(e: KeyboardEvent) {
+      // Si el lightbox está abierto, dejar que él maneje el teclado
+      if (lightboxAbierto) return;
+
       if (e.key === "Escape") {
         onClose();
       } else if (e.key === "ArrowLeft") {
@@ -72,7 +81,7 @@ export default function ProyectoModal({
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = originalOverflow;
     };
-  }, [isOpen, onClose, itemsGaleria.length]);
+  }, [isOpen, onClose, itemsGaleria.length, lightboxAbierto]);
 
   if (!isOpen) return null;
 
@@ -124,16 +133,49 @@ export default function ProyectoModal({
         {/* Contenido scrolleable */}
         <div className="overflow-y-auto flex-1 px-3 py-6 sm:p-6 space-y-6">
           {/* Visor de Galería */}
-          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
+          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center shadow-inner group/media">
             {elementoActual.tipo === "imagen" ? (
-              <Image
-                src={elementoActual.url}
-                alt={`${titulo} - elemento ${indiceActivo + 1}`}
-                fill
-                sizes="(max-width: 768px) 100vw, 768px"
-                className="object-contain"
-                priority={indiceActivo === 0}
-              />
+              <div
+                className="relative w-full h-full cursor-zoom-in flex items-center justify-center"
+                onClick={() => setLightboxAbierto(true)}
+                title="Hacer clic para ampliar imagen"
+              >
+                <Image
+                  src={elementoActual.url}
+                  alt={`${titulo} - elemento ${indiceActivo + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="object-contain transition-transform duration-300 group-hover/media:scale-[1.02]"
+                  priority={indiceActivo === 0}
+                />
+
+                {/* Botón flotante para ampliar imagen */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxAbierto(true);
+                  }}
+                  className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/65 hover:bg-black/85 text-white text-xs font-medium backdrop-blur-xs shadow-md transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/media:opacity-100 focus:opacity-100"
+                  aria-label="Ampliar imagen a pantalla completa"
+                  title="Ampliar imagen"
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+                    />
+                  </svg>
+                  <span>Ampliar</span>
+                </button>
+              </div>
             ) : elementoActual.tipo === "youtube" ? (
               <iframe
                 src={obtenerYoutubeEmbedUrl(elementoActual.url)}
@@ -157,12 +199,13 @@ export default function ProyectoModal({
               <>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setIndiceActivo((prev) =>
                       prev === 0 ? itemsGaleria.length - 1 : prev - 1
-                    )
-                  }
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors"
+                    );
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors z-10 cursor-pointer"
                   aria-label="Elemento anterior"
                 >
                   <svg
@@ -181,12 +224,13 @@ export default function ProyectoModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setIndiceActivo((prev) =>
                       prev === itemsGaleria.length - 1 ? 0 : prev + 1
-                    )
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors"
+                    );
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors z-10 cursor-pointer"
                   aria-label="Siguiente elemento"
                 >
                   <svg
@@ -205,7 +249,7 @@ export default function ProyectoModal({
                 </button>
 
                 {/* Badge de contador (ej. 1/4) */}
-                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/70 text-white text-xs font-medium">
+                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/70 text-white text-xs font-medium z-10">
                   {indiceActivo + 1} / {itemsGaleria.length}
                 </div>
               </>
@@ -295,6 +339,16 @@ export default function ProyectoModal({
           )}
         </div>
       </div>
+
+      {/* Visor ampliado de imágenes / lightbox en pantalla completa */}
+      <ProyectoLightbox
+        isOpen={lightboxAbierto}
+        onClose={() => setLightboxAbierto(false)}
+        titulo={titulo}
+        items={itemsGaleria}
+        indiceActivo={indiceActivo}
+        onCambiarIndice={setIndiceActivo}
+      />
     </div>
   );
 }
