@@ -126,6 +126,38 @@ export default function AdminProyectosApp() {
     moverItemGaleria(index, index + delta);
   }
 
+  const [subiendoGaleriaIndex, setSubiendoGaleriaIndex] = useState<number | null>(null);
+
+  async function subirArchivoAGaleria(file: File, index: number) {
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+      alert("Formato no soportado. Usá JPG, PNG, WEBP o GIF.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("carpeta", "proyectos");
+    setSubiendoGaleriaIndex(index);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        const nueva = [...galeria];
+        nueva[index] = { tipo: "imagen", url: data.url };
+        setGaleria(nueva);
+      } else if (data.error) {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error("Error al subir imagen:", err);
+      alert("Error inesperado al subir la imagen.");
+    } finally {
+      setSubiendoGaleriaIndex(null);
+    }
+  }
+
   function handleDragStart(e: React.DragEvent, index: number) {
     setArrastrandoIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -134,14 +166,26 @@ export default function AdminProyectosApp() {
 
   function handleDragOver(e: React.DragEvent, index: number) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    if (e.dataTransfer.types.includes("Files")) {
+      e.dataTransfer.dropEffect = "copy";
+    } else {
+      e.dataTransfer.dropEffect = "move";
+    }
     if (posicionSobreIndex !== index) {
       setPosicionSobreIndex(index);
     }
   }
 
-  function handleDrop(e: React.DragEvent, destinoIndex: number) {
+  async function handleDrop(e: React.DragEvent, destinoIndex: number) {
     e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        await subirArchivoAGaleria(file, destinoIndex);
+      }
+      setPosicionSobreIndex(null);
+      return;
+    }
     if (arrastrandoIndex !== null && arrastrandoIndex !== destinoIndex) {
       moverItemGaleria(arrastrandoIndex, destinoIndex);
     }
@@ -360,6 +404,10 @@ export default function AdminProyectosApp() {
                       draggable
                       onDragStart={(e) => handleDragStart(e, index)}
                       onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={(e) => {
+                        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                        if (posicionSobreIndex === index) setPosicionSobreIndex(null);
+                      }}
                       onDrop={(e) => handleDrop(e, index)}
                       onDragEnd={handleDragEnd}
                       className={`p-2.5 rounded-lg border transition-all ${
@@ -526,37 +574,31 @@ export default function AdminProyectosApp() {
                             <div className="flex items-center gap-1.5 shrink-0">
                               {item.tipo === "imagen" && (
                                 <label
-                                  className="text-xs bg-surface-hover hover:bg-surface border border-border-strong px-2.5 py-1 rounded cursor-pointer text-foreground flex items-center gap-1 transition-colors"
-                                  title="Subir archivo a Cloudinary"
+                                  className="text-xs bg-surface-hover hover:bg-surface border border-border-strong px-2.5 py-1 rounded cursor-pointer text-foreground flex items-center gap-1 transition-colors disabled:opacity-50"
+                                  title="Subir archivo o arrastrar imagen encima"
                                 >
-                                  <span>Subir</span>
-                                  <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp,image/gif"
-                                    className="hidden"
-                                    onChange={async (e) => {
-                                      const file = e.target.files?.[0];
-                                      if (!file) return;
-                                      const formData = new FormData();
-                                      formData.append("file", file);
-                                      formData.append("carpeta", "proyectos");
-                                      try {
-                                        const res = await fetch("/api/upload", {
-                                          method: "POST",
-                                          body: formData,
-                                        });
-                                        const data = await res.json();
-                                        if (data.url) {
-                                          actualizarItemGaleria(index, "url", data.url);
-                                        } else if (data.error) {
-                                          alert(data.error);
-                                        }
-                                      } catch (err) {
-                                        console.error("Error al subir imagen:", err);
-                                        alert("Error inesperado al subir la imagen.");
-                                      }
-                                    }}
-                                  />
+                                  {subiendoGaleriaIndex === index ? (
+                                    <>
+                                      <Spinner size="sm" color="current" />
+                                      <span>Subiendo...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span>Subir</span>
+                                      <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp,image/gif"
+                                        className="hidden"
+                                        disabled={subiendoGaleriaIndex !== null}
+                                        onChange={async (e) => {
+                                          const file = e.target.files?.[0];
+                                          if (!file) return;
+                                          await subirArchivoAGaleria(file, index);
+                                          e.target.value = "";
+                                        }}
+                                      />
+                                    </>
+                                  )}
                                 </label>
                               )}
                               <button

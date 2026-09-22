@@ -88,6 +88,31 @@ export default function ImageUploader({
     }
   }
 
+  function handleDragEnter(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    if (disabled || subiendo) return;
+    if (e.dataTransfer.types.includes("Files")) {
+      setArrastrando(true);
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    if (disabled || subiendo) return;
+    if (e.dataTransfer.types.includes("Files")) {
+      e.dataTransfer.dropEffect = "copy";
+      if (!arrastrando) {
+        setArrastrando(true);
+      }
+    }
+  }
+
+  function handleDragLeave(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setArrastrando(false);
+  }
+
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
     setArrastrando(false);
@@ -97,18 +122,6 @@ export default function ImageUploader({
     if (file) {
       procesarArchivo(file);
     }
-  }
-
-  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    if (!disabled && !subiendo) {
-      setArrastrando(true);
-    }
-  }
-
-  function handleDragLeave(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    setArrastrando(false);
   }
 
   const tieneImagen = Boolean(value && value.trim().length > 0);
@@ -141,8 +154,50 @@ export default function ImageUploader({
       />
 
       {/* Caja de subida o previsualización */}
-      {tieneImagen && !subiendo ? (
-        <div className="p-3 rounded-lg border border-border bg-surface/60 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      {tieneImagen ? (
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          className={`relative p-3 rounded-lg border transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 overflow-hidden ${
+            arrastrando
+              ? "border-accent bg-accent/10 ring-2 ring-accent/30 shadow-md"
+              : "border-border bg-surface/60 hover:border-border-strong"
+          }`}
+        >
+          {/* Overlay cuando se arrastra un archivo encima */}
+          {arrastrando && !subiendo && (
+            <div className="absolute inset-0 bg-surface/95 backdrop-blur-xs rounded-lg border-2 border-dashed border-accent flex items-center justify-center z-20 pointer-events-none transition-all">
+              <div className="flex items-center gap-2 text-accent font-medium text-xs px-3 py-1.5 bg-accent/10 rounded-full shadow-xs">
+                <svg
+                  className="w-4 h-4 animate-bounce"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+                <span>Soltá el archivo aquí para reemplazar la imagen</span>
+              </div>
+            </div>
+          )}
+
+          {/* Overlay cuando está subiendo */}
+          {subiendo && (
+            <div className="absolute inset-0 bg-surface/90 backdrop-blur-xs rounded-lg flex items-center justify-center z-20 transition-all">
+              <div className="flex items-center gap-2 text-foreground font-medium text-xs">
+                <Spinner size="sm" color="accent" />
+                <span>Subiendo nueva imagen a Cloudinary...</span>
+              </div>
+            </div>
+          )}
+
           <div
             className={`relative overflow-hidden rounded-md border border-border bg-black/5 shrink-0 ${
               aspectRatio === "square"
@@ -165,22 +220,39 @@ export default function ImageUploader({
               {value.split("/").pop() || "Imagen cargada"}
             </p>
             <p className="text-[11px] text-muted truncate">{value}</p>
+            <p className="text-[10px] text-muted-subtle mt-0.5 flex items-center gap-1">
+              <svg
+                className="w-3 h-3 text-muted-subtle"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+              <span>Arrastrá y soltá una imagen aquí para reemplazarla</span>
+            </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled}
-              className="px-3 py-1.5 rounded text-xs font-medium bg-surface-hover hover:bg-surface border border-border text-foreground transition-colors cursor-pointer"
+              disabled={disabled || subiendo}
+              className="px-3 py-1.5 rounded text-xs font-medium bg-surface-hover hover:bg-surface border border-border text-foreground transition-colors cursor-pointer disabled:opacity-50"
+              title="Cambiar o arrastrar archivo encima"
             >
               Cambiar
             </button>
             <button
               type="button"
               onClick={() => onChange("")}
-              disabled={disabled}
-              className="px-2 py-1.5 rounded text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+              disabled={disabled || subiendo}
+              className="px-2 py-1.5 rounded text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50"
               title="Quitar imagen"
             >
               ✕ Quitar
@@ -191,13 +263,14 @@ export default function ImageUploader({
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onClick={() => {
             if (!subiendo && !disabled) fileInputRef.current?.click();
           }}
           className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
             arrastrando
-              ? "border-accent bg-accent/5 scale-[1.005]"
+              ? "border-accent bg-accent/10 scale-[1.01] ring-2 ring-accent/30 shadow-md"
               : "border-border hover:border-border-strong bg-surface/30 hover:bg-surface/60"
           } ${subiendo || disabled ? "pointer-events-none opacity-70" : ""}`}
         >
@@ -213,9 +286,15 @@ export default function ImageUploader({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1.5 py-1">
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent mb-1">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all ${
+                  arrastrando
+                    ? "bg-accent text-accent-foreground scale-110 shadow-sm"
+                    : "bg-accent/10 text-accent"
+                }`}
+              >
                 <svg
-                  className="w-5 h-5"
+                  className={`w-5 h-5 ${arrastrando ? "animate-bounce" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -229,10 +308,18 @@ export default function ImageUploader({
                 </svg>
               </div>
               <p className="text-xs font-medium text-foreground">
-                <span className="text-accent underline font-semibold">
-                  Hacé clic para subir
-                </span>{" "}
-                o arrastrá y soltá una imagen
+                {arrastrando ? (
+                  <span className="text-accent font-semibold">
+                    ¡Soltá el archivo aquí para subirlo!
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-accent underline font-semibold">
+                      Hacé clic para subir
+                    </span>{" "}
+                    o arrastrá y soltá una imagen
+                  </>
+                )}
               </p>
               <p className="text-[11px] text-muted">
                 JPG, PNG, WEBP o GIF (hasta 8MB)
