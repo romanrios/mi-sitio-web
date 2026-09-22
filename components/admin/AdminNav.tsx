@@ -4,7 +4,7 @@ import { logoutAction } from "@/lib/auth-actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function AdminNav() {
+export default function AdminNav({ className }: { className?: string } = {}) {
   const pathname = usePathname();
 
   const tabs = [
@@ -13,11 +13,12 @@ export default function AdminNav() {
     { href: "/admin/habilidades", label: "Habilidades" },
     { href: "/admin", label: "Proyectos", exact: true },
     { href: "/admin/contacto", label: "Contacto" },
+    { href: "/admin/imagenes", label: "Imágenes" },
     { href: "/admin/configuracion", label: "Configuración" },
   ];
 
   return (
-    <div className="w-full max-w-2xl mb-8">
+    <div className={`w-full ${className ?? "max-w-2xl"} mb-8`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">
           Panel de administración
