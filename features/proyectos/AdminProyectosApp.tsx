@@ -87,6 +87,7 @@ export default function AdminProyectosApp() {
       proyecto.enlaces?.map((e) => ({ etiqueta: e.etiqueta, url: e.url })) ?? []
     );
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // Manejo de Galería
