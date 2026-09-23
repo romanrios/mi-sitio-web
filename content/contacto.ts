@@ -37,8 +37,8 @@ export const TIPOS_CONTACTO: {
   {
     tipo: "correo",
     label: "Correo electrónico",
-    placeholderValor: "romanrios@live.com",
-    placeholderUrl: "mailto:romanrios@live.com (opcional)",
+    placeholderValor: "romanrios1234@gmail.com",
+    placeholderUrl: "mailto:romanrios1234@gmail.com (opcional)",
   },
   {
     tipo: "ubicacion",
@@ -183,8 +183,8 @@ export const contactoItemsDefault: ContactoItem[] = [
     id: 3,
     tipo: "correo",
     titulo: "Correo electrónico",
-    valor: "romanrios@live.com",
-    url: "mailto:romanrios@live.com",
+    valor: "romanrios1234@gmail.com",
+    url: "mailto:romanrios1234@gmail.com",
     orden: 3,
   },
   {
