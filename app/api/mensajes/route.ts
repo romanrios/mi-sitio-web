@@ -165,7 +165,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "No se pudo enviar el mensaje en este momento. Por favor, intenta de nuevo más tarde.",
+            process.env.NODE_ENV === "development"
+              ? `Error de Resend (${error.name}): ${error.message}`
+              : "No se pudo enviar el mensaje en este momento. Por favor, intenta de nuevo más tarde.",
         },
         { status: 500 }
       );

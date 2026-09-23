@@ -54,7 +54,7 @@ No crear carpetas vacías (`hero/`, `about/`, etc.) hasta que la sección exista
 El gate vive en `app/admin/layout.tsx`. Nuevas áreas pueden ser `app/admin/proyectos/page.tsx`, `app/admin/experiencia/page.tsx`, etc., sin reimplementar el login.
 
 ## Variables de entorno (en .env.local y en Vercel)
-TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, ADMIN_EMAILS, RESEND_API_KEY
+TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, ADMIN_EMAILS, RESEND_API_KEY, RESEND_FROM_EMAIL (opcional), CONTACT_RECEIVER_EMAIL (opcional)
 
 ## Dominio propio
 - Configurado: `romanrios.com.ar` (canónico, OpenGraph, sitemap, robots y metadatos base).
