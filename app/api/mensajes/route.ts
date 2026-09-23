@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
       const correoItem =
         items.find((i) => i.tipo.toLowerCase() === "correo") ||
         items.find((i) => i.valor.includes("@"));
-      toEmail = correoItem?.valor || "romanrios@live.com";
+      toEmail = correoItem?.valor || "romanrios1234@gmail.com";
     } catch {
-      toEmail = "romanrios@live.com";
+      toEmail = "romanrios1234@gmail.com";
     }
   }
 
