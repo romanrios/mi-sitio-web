@@ -40,7 +40,7 @@ export default async function ProyectosSection() {
       <div className="space-y-12">
         {categoriasConProyectos.map(({ categoria, items }) => (
           <div key={categoria} className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2 uppercase mt-15">
               {categoria}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
