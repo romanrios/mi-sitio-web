@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     .returning();
 
   if (body.galeria && Array.isArray(body.galeria) && body.galeria.length > 0) {
-    const galeriaAInsertar = body.galeria.map((item: any, index: number) => ({
+    const galeriaAInsertar = (body.galeria as Array<{ tipo: "imagen" | "youtube" | "vimeo"; url: string; orden?: number }>).map((item, index: number) => ({
       proyectoId: nuevoProyecto.id,
       tipo: item.tipo,
       url: item.url.trim(),
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.tags && Array.isArray(body.tags) && body.tags.length > 0) {
-    const tagsAInsertar = body.tags.map((item: any, index: number) => ({
+    const tagsAInsertar = (body.tags as Array<{ nombre: string; orden?: number }>).map((item, index: number) => ({
       proyectoId: nuevoProyecto.id,
       nombre: item.nombre.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.enlaces && Array.isArray(body.enlaces) && body.enlaces.length > 0) {
-    const enlacesAInsertar = body.enlaces.map((item: any, index: number) => ({
+    const enlacesAInsertar = (body.enlaces as Array<{ etiqueta: string; url: string; orden?: number }>).map((item, index: number) => ({
       proyectoId: nuevoProyecto.id,
       etiqueta: item.etiqueta.trim(),
       url: item.url.trim(),
@@ -190,4 +190,57 @@ export async function POST(request: NextRequest) {
 
   revalidatePath("/");
   return NextResponse.json(creadoConRelaciones, { status: 201 });
+}
+
+type ItemReordenar = {
+  id: number;
+  orden: number;
+  categoria?: string;
+};
+
+export async function PATCH(request: NextRequest) {
+  const session = await auth();
+
+  if (!isAdmin(session?.user?.email)) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 403 });
+  }
+
+  const body = await request.json();
+
+  if (!body.items || !Array.isArray(body.items)) {
+    return NextResponse.json(
+      { error: "items debe ser un arreglo de proyectos a reordenar." },
+      { status: 400 }
+    );
+  }
+
+  const itemsValidos = (body.items as unknown[]).filter(
+    (item): item is ItemReordenar =>
+      item !== null &&
+      typeof item === "object" &&
+      "id" in item &&
+      typeof (item as ItemReordenar).id === "number" &&
+      "orden" in item &&
+      typeof (item as ItemReordenar).orden === "number"
+  );
+
+  const updates = itemsValidos.map((item) => {
+    const valores: { orden: number; categoria?: string } = {
+      orden: item.orden,
+    };
+    if (item.categoria && esCategoriaValida(item.categoria)) {
+      valores.categoria = item.categoria;
+    }
+    return db
+      .update(proyectos)
+      .set(valores)
+      .where(eq(proyectos.id, item.id));
+  });
+
+  if (updates.length > 0) {
+    await Promise.all(updates);
+  }
+
+  revalidatePath("/");
+  return NextResponse.json({ success: true });
 }

@@ -1,9 +1,9 @@
-type CardProps = {
+type CardProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;
   className?: string;
 };
 
-export default function Card({ children, className }: CardProps) {
+export default function Card({ children, className, ...props }: CardProps) {
   const classes = [
     "bg-surface border border-border rounded-lg shadow-sm",
     className,
@@ -11,5 +11,9 @@ export default function Card({ children, className }: CardProps) {
     .filter(Boolean)
     .join(" ");
 
-  return <div className={classes}>{children}</div>;
+  return (
+    <div className={classes} {...props}>
+      {children}
+    </div>
+  );
 }

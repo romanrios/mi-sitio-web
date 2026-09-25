@@ -33,11 +33,187 @@ export default function AdminProyectosApp() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
+  // Estados para reordenamiento de proyectos
+  const [guardandoOrden, setGuardandoOrden] = useState(false);
+  const [arrastrandoProyecto, setArrastrandoProyecto] = useState<{
+    id: number;
+    categoria: string;
+    index: number;
+  } | null>(null);
+  const [posicionSobreProyectoId, setPosicionSobreProyectoId] = useState<number | null>(null);
+  const [posicionSobreCategoria, setPosicionSobreCategoria] = useState<string | null>(null);
+
   async function cargarProyectos() {
     const res = await fetch("/api/proyectos");
     const data = await res.json();
     setProyectosList(data);
     setCargando(false);
+  }
+
+  // Agrupamiento de proyectos por categoría
+  const categoriasPresentes = Array.from(
+    new Set([
+      ...CATEGORIAS,
+      ...proyectosList
+        .map((p) => p.categoria)
+        .filter((cat): cat is string => Boolean(cat)),
+    ])
+  );
+
+  const todosLosGrupos = categoriasPresentes.map((cat) => ({
+    categoria: cat,
+    items: proyectosList.filter((p) => p.categoria === cat),
+  }));
+
+  const gruposConProyectos = todosLosGrupos.filter((g) => g.items.length > 0);
+
+  async function persistirOrden(lista: ProyectoData[]) {
+    setGuardandoOrden(true);
+    try {
+      const res = await fetch("/api/proyectos", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: lista.map((p) => ({
+            id: p.id,
+            orden: p.orden,
+            categoria: p.categoria,
+          })),
+        }),
+      });
+      if (!res.ok) {
+        console.error("Error al persistir orden en el servidor.");
+        await cargarProyectos();
+      }
+    } catch (err) {
+      console.error("Error al guardar nuevo orden:", err);
+      await cargarProyectos();
+    } finally {
+      setGuardandoOrden(false);
+    }
+  }
+
+  function moverProyectoPaso(
+    categoriaNombre: string,
+    indexEnCategoria: number,
+    delta: -1 | 1
+  ) {
+    const grupo = todosLosGrupos.find((g) => g.categoria === categoriaNombre);
+    if (!grupo) return;
+
+    const nuevoIndex = indexEnCategoria + delta;
+    if (nuevoIndex < 0 || nuevoIndex >= grupo.items.length) return;
+
+    const items = [...grupo.items];
+    const [removido] = items.splice(indexEnCategoria, 1);
+    items.splice(nuevoIndex, 0, removido);
+
+    const nuevaListaCompleta = todosLosGrupos.flatMap((g) =>
+      g.categoria === categoriaNombre ? items : g.items
+    );
+
+    const listaConNuevoOrden = nuevaListaCompleta.map((p, idx) => ({
+      ...p,
+      orden: idx,
+    }));
+
+    setProyectosList(listaConNuevoOrden);
+    persistirOrden(listaConNuevoOrden);
+  }
+
+  function handleProjectDragStart(
+    e: React.DragEvent,
+    id: number,
+    categoriaNombre: string,
+    indexEnCategoria: number
+  ) {
+    setArrastrandoProyecto({
+      id,
+      categoria: categoriaNombre,
+      index: indexEnCategoria,
+    });
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `${id}`);
+  }
+
+  function handleProjectDragOver(
+    e: React.DragEvent,
+    id: number,
+    categoriaNombre: string
+  ) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (posicionSobreProyectoId !== id) {
+      setPosicionSobreProyectoId(id);
+    }
+    if (posicionSobreCategoria !== categoriaNombre) {
+      setPosicionSobreCategoria(categoriaNombre);
+    }
+  }
+
+  async function handleProjectDrop(
+    e: React.DragEvent,
+    destinoCategoria: string,
+    destinoIndex: number
+  ) {
+    e.preventDefault();
+    const arrastrado = arrastrandoProyecto;
+    setArrastrandoProyecto(null);
+    setPosicionSobreProyectoId(null);
+    setPosicionSobreCategoria(null);
+
+    if (!arrastrado) return;
+    const { id: origenId, categoria: origenCategoria, index: origenIndex } = arrastrado;
+
+    if (origenCategoria === destinoCategoria && origenIndex === destinoIndex) {
+      return;
+    }
+
+    const proyectoObj = proyectosList.find((p) => p.id === origenId);
+    if (!proyectoObj) return;
+
+    let nuevaListaCompleta: ProyectoData[] = [];
+
+    if (origenCategoria === destinoCategoria) {
+      const grupo = todosLosGrupos.find((g) => g.categoria === origenCategoria);
+      if (!grupo) return;
+      const items = [...grupo.items];
+      const [removido] = items.splice(origenIndex, 1);
+      items.splice(destinoIndex, 0, removido);
+
+      nuevaListaCompleta = todosLosGrupos.flatMap((g) =>
+        g.categoria === origenCategoria ? items : g.items
+      );
+    } else {
+      const grupoOrigen = todosLosGrupos.find((g) => g.categoria === origenCategoria);
+      const grupoDestino = todosLosGrupos.find((g) => g.categoria === destinoCategoria);
+      if (!grupoOrigen || !grupoDestino) return;
+
+      const itemsOrigen = grupoOrigen.items.filter((p) => p.id !== origenId);
+      const itemsDestino = [...grupoDestino.items];
+      const proyectoActualizado = { ...proyectoObj, categoria: destinoCategoria };
+      itemsDestino.splice(destinoIndex, 0, proyectoActualizado);
+
+      nuevaListaCompleta = todosLosGrupos.flatMap((g) => {
+        if (g.categoria === origenCategoria) return itemsOrigen;
+        if (g.categoria === destinoCategoria) return itemsDestino;
+        return g.items;
+      });
+    }
+
+    const listaConNuevoOrden = nuevaListaCompleta.map((p, idx) => ({
+      ...p,
+      orden: idx,
+    }));
+
+    setProyectosList(listaConNuevoOrden);
+    await persistirOrden(listaConNuevoOrden);
+  }
+
+  function handleProjectDragEnd() {
+    setArrastrandoProyecto(null);
+    setPosicionSobreProyectoId(null);
+    setPosicionSobreCategoria(null);
   }
 
   useEffect(() => {
@@ -764,9 +940,17 @@ export default function AdminProyectosApp() {
         </Card>
       </form>
 
-      <h2 className="text-lg font-semibold text-foreground mb-4">
-        Proyectos existentes
-      </h2>
+      <div className="flex items-center justify-between mb-4 mt-2">
+        <h2 className="text-lg font-semibold text-foreground">
+          Proyectos existentes ({proyectosList.length})
+        </h2>
+        {guardandoOrden && (
+          <span className="text-xs text-muted flex items-center gap-1.5 font-medium animate-pulse">
+            <Spinner size="sm" color="current" />
+            Guardando orden...
+          </span>
+        )}
+      </div>
 
       {cargando && (
         <div className="space-y-3">
@@ -781,83 +965,213 @@ export default function AdminProyectosApp() {
       )}
 
       {!cargando && proyectosList.length > 0 && (
-        <div className="space-y-3">
-          {proyectosList.map((proyecto) => {
-          const numImagenes = proyecto.galeria?.filter((g) => g.tipo === "imagen").length ?? 0;
-          const numVideos = proyecto.galeria?.filter((g) => g.tipo === "youtube" || g.tipo === "vimeo").length ?? 0;
-          const numEnlaces = proyecto.enlaces?.length ?? 0;
-
-          return (
-            <Card
-              key={proyecto.id}
-              className="rounded-md p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={proyecto.imagenUrl}
-                alt={proyecto.titulo}
-                className="w-16 h-16 object-cover rounded-md shrink-0"
-              />
-              <div className="flex-1 min-w-0 w-full">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <p className="font-medium text-foreground truncate">
-                    {proyecto.titulo}
-                  </p>
-                  <span className="text-xs px-2 py-0.5 rounded bg-surface-hover text-muted border border-border shrink-0">
-                    {proyecto.categoria}
-                  </span>
-                  <span className="text-xs text-muted-faint shrink-0">
-                    Orden: {proyecto.orden}
+        <div className="space-y-8">
+          {gruposConProyectos.map((grupo) => (
+            <div key={grupo.categoria} className="space-y-3">
+              <div className="flex items-center justify-between border-b border-border pb-2 pt-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent shrink-0" />
+                  <h3 className="text-base font-semibold text-foreground">
+                    {grupo.categoria}
+                  </h3>
+                  <span className="text-xs font-medium text-muted bg-surface-hover px-2 py-0.5 rounded-full border border-border">
+                    {grupo.items.length} {grupo.items.length === 1 ? "proyecto" : "proyectos"}
                   </span>
                 </div>
-                <p className="text-sm text-muted-subtle truncate mb-2">
-                  {proyecto.descripcion}
-                </p>
+                <span className="text-xs text-muted-subtle hidden sm:inline">
+                  Arrastra o usa las flechas para ordenar
+                </span>
+              </div>
 
-                {/* Resumen de vista extendida */}
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-                  {(numImagenes > 0 || numVideos > 0) && (
-                    <span className="inline-flex items-center gap-1 bg-surface-hover px-2 py-0.5 rounded border border-border">
-                      {numImagenes > 0 && `📷 ${numImagenes}`}
-                      {numVideos > 0 && `🎥 ${numVideos}`}
-                    </span>
-                  )}
-                  {numEnlaces > 0 && (
-                    <span className="inline-flex items-center gap-1 bg-surface-hover px-2 py-0.5 rounded border border-border">
-                      🔗 {numEnlaces} {numEnlaces === 1 ? "enlace" : "enlaces"}
-                    </span>
-                  )}
-                  {proyecto.tags && proyecto.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {proyecto.tags.map((t) => (
-                        <span
-                          key={t.id || t.nombre}
-                          className="px-1.5 py-0.5 rounded bg-surface-hover text-foreground border border-border font-mono text-[11px]"
+              <div className="space-y-3">
+                {grupo.items.map((proyecto, itemIndex) => {
+                  const numImagenes =
+                    proyecto.galeria?.filter((g) => g.tipo === "imagen").length ?? 0;
+                  const numVideos =
+                    proyecto.galeria?.filter(
+                      (g) => g.tipo === "youtube" || g.tipo === "vimeo"
+                    ).length ?? 0;
+                  const numEnlaces = proyecto.enlaces?.length ?? 0;
+
+                  return (
+                    <Card
+                      key={proyecto.id}
+                      draggable
+                      onDragStart={(e: React.DragEvent) =>
+                        handleProjectDragStart(
+                          e,
+                          proyecto.id,
+                          grupo.categoria,
+                          itemIndex
+                        )
+                      }
+                      onDragOver={(e: React.DragEvent) =>
+                        handleProjectDragOver(e, proyecto.id, grupo.categoria)
+                      }
+                      onDragLeave={(e: React.DragEvent) => {
+                        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                        if (posicionSobreProyectoId === proyecto.id) {
+                          setPosicionSobreProyectoId(null);
+                        }
+                      }}
+                      onDrop={(e: React.DragEvent) =>
+                        handleProjectDrop(e, grupo.categoria, itemIndex)
+                      }
+                      onDragEnd={handleProjectDragEnd}
+                      className={`rounded-md p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-all ${
+                        arrastrandoProyecto?.id === proyecto.id
+                          ? "opacity-40 border-dashed border-accent bg-accent/5"
+                          : posicionSobreProyectoId === proyecto.id &&
+                            arrastrandoProyecto?.id !== proyecto.id
+                          ? "border-accent bg-surface-hover shadow-sm"
+                          : "bg-surface border-border hover:border-border-strong"
+                      }`}
+                    >
+                      {/* Controles de orden */}
+                      <div className="flex items-center gap-1 shrink-0 self-start sm:self-center">
+                        <div className="flex flex-col items-center justify-center gap-0.5">
+                          <button
+                            type="button"
+                            disabled={itemIndex === 0 || guardandoOrden}
+                            onClick={() =>
+                              moverProyectoPaso(grupo.categoria, itemIndex, -1)
+                            }
+                            className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                            title="Subir (mover antes)"
+                            aria-label={`Subir proyecto ${proyecto.titulo}`}
+                          >
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 15l7-7 7 7"
+                              />
+                            </svg>
+                          </button>
+
+                          <span
+                            className="text-[10px] font-mono font-bold text-muted-subtle cursor-grab active:cursor-grabbing select-none px-1 py-0.5 rounded hover:bg-surface-hover"
+                            title="Arrastrar para reordenar"
+                          >
+                            #{itemIndex + 1}
+                          </span>
+
+                          <button
+                            type="button"
+                            disabled={
+                              itemIndex === grupo.items.length - 1 || guardandoOrden
+                            }
+                            onClick={() =>
+                              moverProyectoPaso(grupo.categoria, itemIndex, 1)
+                            }
+                            className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                            title="Bajar (mover después)"
+                            aria-label={`Bajar proyecto ${proyecto.titulo}`}
+                          >
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Manija de arrastre */}
+                        <div
+                          className="text-muted-faint hover:text-muted cursor-grab active:cursor-grabbing select-none hidden sm:block p-0.5"
+                          title="Arrastrar para reordenar"
                         >
-                          {t.nombre}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm6-16a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={proyecto.imagenUrl}
+                        alt={proyecto.titulo}
+                        className="w-16 h-16 object-cover rounded-md shrink-0"
+                      />
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="font-medium text-foreground truncate">
+                            {proyecto.titulo}
+                          </p>
+                          <span className="text-xs px-2 py-0.5 rounded bg-surface-hover text-muted border border-border shrink-0">
+                            {proyecto.categoria}
+                          </span>
+                          <span className="text-xs text-muted-faint shrink-0">
+                            Posición #{itemIndex + 1}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-subtle truncate mb-2">
+                          {proyecto.descripcion}
+                        </p>
+
+                        {/* Resumen de vista extendida */}
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+                          {(numImagenes > 0 || numVideos > 0) && (
+                            <span className="inline-flex items-center gap-1 bg-surface-hover px-2 py-0.5 rounded border border-border">
+                              {numImagenes > 0 && `📷 ${numImagenes}`}
+                              {numVideos > 0 && `🎥 ${numVideos}`}
+                            </span>
+                          )}
+                          {numEnlaces > 0 && (
+                            <span className="inline-flex items-center gap-1 bg-surface-hover px-2 py-0.5 rounded border border-border">
+                              🔗 {numEnlaces} {numEnlaces === 1 ? "enlace" : "enlaces"}
+                            </span>
+                          )}
+                          {proyecto.tags && proyecto.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {proyecto.tags.map((t) => (
+                                <span
+                                  key={t.id || t.nombre}
+                                  className="px-1.5 py-0.5 rounded bg-surface-hover text-foreground border border-border font-mono text-[11px]"
+                                >
+                                  {t.nombre}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 shrink-0 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => cargarEnFormulario(proyecto)}
+                          className="text-sm text-accent hover:underline cursor-pointer"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => borrar(proyecto.id)}
+                          className="text-sm text-error hover:underline cursor-pointer"
+                        >
+                          Borrar
+                        </button>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
-              <div className="flex gap-2 shrink-0 self-end sm:self-center">
-                <button
-                  onClick={() => cargarEnFormulario(proyecto)}
-                  className="text-sm text-accent hover:underline cursor-pointer"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => borrar(proyecto.id)}
-                  className="text-sm text-error hover:underline cursor-pointer"
-                >
-                  Borrar
-                </button>
-              </div>
-            </Card>
-          );
-        })}
+            </div>
+          ))}
         </div>
       )}
     </div>
