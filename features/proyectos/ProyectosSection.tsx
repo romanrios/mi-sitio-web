@@ -1,33 +1,58 @@
 import { db } from "@/app/db";
-import { proyectos } from "@/app/db/schema";
+import { proyectoCategorias, proyectos } from "@/app/db/schema";
 import ProyectoItem from "@/features/proyectos/ProyectoItem";
-import { CATEGORIAS } from "@/lib/categorias";
+import { CATEGORIAS_POR_DEFECTO } from "@/lib/categorias";
 import { asc } from "drizzle-orm";
 
 export default async function ProyectosSection() {
-  const todosLosProyectos = await db.query.proyectos.findMany({
-    orderBy: [asc(proyectos.orden)],
-    with: {
-      galeria: {
-        orderBy: (galeria, { asc }) => [asc(galeria.orden)],
+  const [todosLosProyectos, categoriasDB] = await Promise.all([
+    db.query.proyectos.findMany({
+      orderBy: [asc(proyectos.orden)],
+      with: {
+        galeria: {
+          orderBy: (galeria, { asc }) => [asc(galeria.orden)],
+        },
+        tags: {
+          orderBy: (tags, { asc }) => [asc(tags.orden)],
+        },
+        enlaces: {
+          orderBy: (enlaces, { asc }) => [asc(enlaces.orden)],
+        },
       },
-      tags: {
-        orderBy: (tags, { asc }) => [asc(tags.orden)],
-      },
-      enlaces: {
-        orderBy: (enlaces, { asc }) => [asc(enlaces.orden)],
-      },
-    },
-  });
+    }),
+    db.query.proyectoCategorias
+      .findMany({
+        orderBy: [asc(proyectoCategorias.orden), asc(proyectoCategorias.id)],
+      })
+      .catch(() => []),
+  ]);
 
   if (todosLosProyectos.length === 0) {
     return null;
   }
 
-  const categoriasConProyectos = CATEGORIAS.map((cat) => ({
-    categoria: cat,
-    items: todosLosProyectos.filter((proyecto) => proyecto.categoria === cat),
-  })).filter((grupo) => grupo.items.length > 0);
+  // Lista de nombres de categorías en el orden definido en admin
+  const nombresCategorias =
+    categoriasDB && categoriasDB.length > 0
+      ? categoriasDB.map((c) => c.nombre)
+      : [...CATEGORIAS_POR_DEFECTO];
+
+  // Si hay proyectos con categorías que no están en la lista ordenada, añadirlos al final por seguridad
+  const categoriasDeProyectos = Array.from(
+    new Set(todosLosProyectos.map((p) => p.categoria))
+  );
+  for (const cat of categoriasDeProyectos) {
+    if (cat && !nombresCategorias.includes(cat)) {
+      nombresCategorias.push(cat);
+    }
+  }
+
+  const categoriasConProyectos = nombresCategorias
+    .map((cat) => ({
+      categoria: cat,
+      items: todosLosProyectos.filter((proyecto) => proyecto.categoria === cat),
+    }))
+    .filter((grupo) => grupo.items.length > 0);
 
   if (categoriasConProyectos.length === 0) {
     return null;

@@ -2,6 +2,18 @@ import { CATEGORIA_POR_DEFECTO } from "@/lib/categorias";
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+export const proyectoCategorias = sqliteTable("proyecto_categorias", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  nombre: text("nombre").notNull().unique(),
+  orden: integer("orden").notNull().default(0),
+  creadoEn: text("creado_en")
+    .notNull()
+    .default(new Date().toISOString()),
+});
+
+export type ProyectoCategoriaDB = typeof proyectoCategorias.$inferSelect;
+export type ProyectoCategoriaInsert = typeof proyectoCategorias.$inferInsert;
+
 export const proyectos = sqliteTable("proyectos", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   titulo: text("titulo").notNull(),

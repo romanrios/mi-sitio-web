@@ -1,5 +1,6 @@
 import { db } from "@/app/db";
 import {
+  proyectoCategorias,
   proyectoEnlaces,
   proyectoGaleria,
   proyectos,
@@ -7,7 +8,6 @@ import {
 } from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
-import { esCategoriaValida } from "@/lib/categorias";
 import { asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
@@ -56,9 +56,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!body.categoria || typeof body.categoria !== "string" || !esCategoriaValida(body.categoria)) {
+  const categoria = typeof body.categoria === "string" ? body.categoria.trim() : "";
+  if (!categoria) {
     return NextResponse.json(
-      { error: "Categoría inválida o no permitida." },
+      { error: "La categoría es requerida." },
+      { status: 400 }
+    );
+  }
+
+  const categoriaExiste = await db.query.proyectoCategorias.findFirst({
+    where: eq(proyectoCategorias.nombre, categoria),
+  });
+
+  if (!categoriaExiste) {
+    return NextResponse.json(
+      { error: `La categoría "${categoria}" no existe en el sistema.` },
       { status: 400 }
     );
   }
@@ -228,8 +240,8 @@ export async function PATCH(request: NextRequest) {
     const valores: { orden: number; categoria?: string } = {
       orden: item.orden,
     };
-    if (item.categoria && esCategoriaValida(item.categoria)) {
-      valores.categoria = item.categoria;
+    if (item.categoria && typeof item.categoria === "string" && item.categoria.trim()) {
+      valores.categoria = item.categoria.trim();
     }
     return db
       .update(proyectos)

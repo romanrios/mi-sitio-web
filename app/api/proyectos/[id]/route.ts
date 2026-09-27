@@ -1,5 +1,6 @@
 import { db } from "@/app/db";
 import {
+  proyectoCategorias,
   proyectoEnlaces,
   proyectoGaleria,
   proyectos,
@@ -7,7 +8,6 @@ import {
 } from "@/app/db/schema";
 import { auth } from "@/auth";
 import { isAdmin } from "@/lib/auth-utils";
-import { esCategoriaValida } from "@/lib/categorias";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
@@ -32,9 +32,19 @@ export async function PUT(
   const body = await request.json();
 
   if (body.categoria !== undefined) {
-    if (typeof body.categoria !== "string" || !esCategoriaValida(body.categoria)) {
+    const categoria = typeof body.categoria === "string" ? body.categoria.trim() : "";
+    if (!categoria) {
       return NextResponse.json(
-        { error: "Categoría inválida o no permitida." },
+        { error: "La categoría no puede estar vacía." },
+        { status: 400 }
+      );
+    }
+    const catExiste = await db.query.proyectoCategorias.findFirst({
+      where: eq(proyectoCategorias.nombre, categoria),
+    });
+    if (!catExiste) {
+      return NextResponse.json(
+        { error: `La categoría "${categoria}" no existe en el sistema.` },
         { status: 400 }
       );
     }
@@ -128,7 +138,7 @@ export async function PUT(
   // Reemplazar galería
   await db.delete(proyectoGaleria).where(eq(proyectoGaleria.proyectoId, proyectoId));
   if (body.galeria && Array.isArray(body.galeria) && body.galeria.length > 0) {
-    const galeriaAInsertar = body.galeria.map((item: any, index: number) => ({
+    const galeriaAInsertar = (body.galeria as Array<{ tipo: "imagen" | "youtube" | "vimeo"; url: string; orden?: number }>).map((item, index: number) => ({
       proyectoId,
       tipo: item.tipo,
       url: item.url.trim(),
@@ -140,7 +150,7 @@ export async function PUT(
   // Reemplazar tags
   await db.delete(proyectoTags).where(eq(proyectoTags.proyectoId, proyectoId));
   if (body.tags && Array.isArray(body.tags) && body.tags.length > 0) {
-    const tagsAInsertar = body.tags.map((item: any, index: number) => ({
+    const tagsAInsertar = (body.tags as Array<{ nombre: string; orden?: number }>).map((item, index: number) => ({
       proyectoId,
       nombre: item.nombre.trim(),
       orden: typeof item.orden === "number" ? item.orden : index,
@@ -151,7 +161,7 @@ export async function PUT(
   // Reemplazar enlaces
   await db.delete(proyectoEnlaces).where(eq(proyectoEnlaces.proyectoId, proyectoId));
   if (body.enlaces && Array.isArray(body.enlaces) && body.enlaces.length > 0) {
-    const enlacesAInsertar = body.enlaces.map((item: any, index: number) => ({
+    const enlacesAInsertar = (body.enlaces as Array<{ etiqueta: string; url: string; orden?: number }>).map((item, index: number) => ({
       proyectoId,
       etiqueta: item.etiqueta.trim(),
       url: item.url.trim(),

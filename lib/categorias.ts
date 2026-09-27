@@ -1,13 +1,24 @@
-export const CATEGORIAS = [
+export const CATEGORIAS_POR_DEFECTO = [
   "Desarrollo web y software",
   "Desarrollo de videojuegos",
   "Diseño y comunicación",
 ] as const;
 
-export type Categoria = (typeof CATEGORIAS)[number];
+export const CATEGORIAS = CATEGORIAS_POR_DEFECTO;
 
-export const CATEGORIA_POR_DEFECTO: Categoria = "Desarrollo web y software";
+export type Categoria = string;
 
-export function esCategoriaValida(valor: unknown): valor is Categoria {
-  return typeof valor === "string" && (CATEGORIAS as readonly string[]).includes(valor);
+export const CATEGORIA_POR_DEFECTO: string = "Desarrollo web y software";
+
+export type ProyectoCategoria = {
+  id: number;
+  nombre: string;
+  orden: number;
+  creadoEn?: string;
+  totalProyectos?: number;
+};
+
+export function esCategoriaValida(valor: unknown): valor is string {
+  return typeof valor === "string" && valor.trim().length > 0;
 }
+

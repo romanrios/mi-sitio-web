@@ -10,9 +10,10 @@ import {
   extraerYoutubeId,
   extraerVimeoId,
 } from "@/lib/proyectos-utils";
-import { CATEGORIA_POR_DEFECTO, CATEGORIAS } from "@/lib/categorias";
+import { CATEGORIA_POR_DEFECTO, ProyectoCategoria } from "@/lib/categorias";
 import { useEffect, useState } from "react";
 import GaleriaMiniatura from "./GaleriaMiniatura";
+import ModalCategorias from "./ModalCategorias";
 
 export default function AdminProyectosApp() {
   const [proyectosList, setProyectosList] = useState<ProyectoData[]>([]);
@@ -22,6 +23,8 @@ export default function AdminProyectosApp() {
   const [descripcion, setDescripcion] = useState("");
   const [imagenUrl, setImagenUrl] = useState("");
   const [categoria, setCategoria] = useState<string>(CATEGORIA_POR_DEFECTO);
+  const [categorias, setCategorias] = useState<ProyectoCategoria[]>([]);
+  const [modalCategoriasAbierto, setModalCategoriasAbierto] = useState(false);
   const [orden, setOrden] = useState(0);
 
   // Estados para las tablas hijas
@@ -50,10 +53,73 @@ export default function AdminProyectosApp() {
     setCargando(false);
   }
 
-  // Agrupamiento de proyectos por categoría
+  async function cargarCategorias() {
+    try {
+      const res = await fetch("/api/proyectos/categorias");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setCategorias(data);
+        }
+      }
+    } catch (err) {
+      console.error("Error al cargar categorías:", err);
+    }
+  }
+
+  function handleCategoriaRenombrada(viejoNombre: string, nuevoNombre: string) {
+    setProyectosList((prev) =>
+      prev.map((p) =>
+        p.categoria === viejoNombre ? { ...p, categoria: nuevoNombre } : p
+      )
+    );
+    if (categoria === viejoNombre) {
+      setCategoria(nuevoNombre);
+    }
+  }
+
+  function handleCategoriaEliminada(id: number) {
+    setCategorias((prev) => {
+      const restantes = prev.filter((c) => c.id !== id);
+      if (restantes.length > 0 && !restantes.some((c) => c.nombre === categoria)) {
+        setCategoria(restantes[0].nombre);
+      }
+      return restantes;
+    });
+  }
+
+  async function moverCategoriaPaso(categoriaNombre: string, delta: -1 | 1) {
+    const index = categorias.findIndex((c) => c.nombre === categoriaNombre);
+    if (index === -1) return;
+    const nuevoIndex = index + delta;
+    if (nuevoIndex < 0 || nuevoIndex >= categorias.length) return;
+
+    const copia = [...categorias];
+    const [removido] = copia.splice(index, 1);
+    copia.splice(nuevoIndex, 0, removido);
+
+    const reordenadas = copia.map((c, idx) => ({ ...c, orden: idx }));
+    setCategorias(reordenadas);
+
+    try {
+      await fetch("/api/proyectos/categorias", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: reordenadas.map((c) => ({ id: c.id, orden: c.orden })),
+        }),
+      });
+    } catch (err) {
+      console.error("Error al persistir orden de categoría:", err);
+      await cargarCategorias();
+    }
+  }
+
+  // Agrupamiento de proyectos según el orden de las categorías
+  const nombresCategorias = categorias.map((c) => c.nombre);
   const categoriasPresentes = Array.from(
     new Set([
-      ...CATEGORIAS,
+      ...nombresCategorias,
       ...proyectosList
         .map((p) => p.categoria)
         .filter((cat): cat is string => Boolean(cat)),
@@ -219,11 +285,27 @@ export default function AdminProyectosApp() {
   useEffect(() => {
     let ignorar = false;
     async function inicializar() {
-      const res = await fetch("/api/proyectos");
-      const data = await res.json();
-      if (!ignorar) {
-        setProyectosList(data);
-        setCargando(false);
+      try {
+        const [proyectosRes, categoriasRes] = await Promise.all([
+          fetch("/api/proyectos"),
+          fetch("/api/proyectos/categorias"),
+        ]);
+        const proyectosData = await proyectosRes.json();
+        const categoriasData = await categoriasRes.json();
+
+        if (!ignorar) {
+          setProyectosList(proyectosData);
+          if (Array.isArray(categoriasData)) {
+            setCategorias(categoriasData);
+            if (categoriasData.length > 0) {
+              setCategoria((prev) => prev || categoriasData[0].nombre);
+            }
+          }
+          setCargando(false);
+        }
+      } catch (err) {
+        console.error("Error al inicializar admin de proyectos:", err);
+        if (!ignorar) setCargando(false);
       }
     }
     inicializar();
@@ -237,7 +319,7 @@ export default function AdminProyectosApp() {
     setTitulo("");
     setDescripcion("");
     setImagenUrl("");
-    setCategoria(CATEGORIA_POR_DEFECTO);
+    setCategoria(categorias[0]?.nombre || CATEGORIA_POR_DEFECTO);
     setOrden(0);
     setGaleria([]);
     setTags([]);
@@ -480,9 +562,19 @@ export default function AdminProyectosApp() {
 
   return (
     <div className="w-full max-w-2xl">
-      <h2 className="text-lg font-semibold text-foreground mb-4">
-        {editandoId ? `Editando proyecto #${editandoId}` : "Nuevo proyecto"}
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h2 className="text-lg font-semibold text-foreground">
+          {editandoId ? `Editando proyecto #${editandoId}` : "Nuevo proyecto"}
+        </h2>
+        <button
+          type="button"
+          onClick={() => setModalCategoriasAbierto(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface hover:bg-surface-hover text-foreground text-xs font-medium transition-colors shadow-xs cursor-pointer self-start sm:self-auto"
+        >
+          <span>📁</span>
+          <span>Gestionar categorías ({categorias.length})</span>
+        </button>
+      </div>
 
       <form onSubmit={guardar}>
         <Card className="p-4 mb-8 space-y-4">
@@ -498,17 +590,30 @@ export default function AdminProyectosApp() {
           </div>
 
           <div>
-            <label className="block text-sm text-muted mb-1 font-medium">Categoría</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm text-muted font-medium">Categoría</label>
+              <button
+                type="button"
+                onClick={() => setModalCategoriasAbierto(true)}
+                className="text-xs text-accent hover:underline flex items-center gap-1 font-medium cursor-pointer"
+              >
+                ⚙️ Administrar categorías
+              </button>
+            </div>
             <select
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
               className="w-full border border-border-strong bg-surface rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              {CATEGORIAS.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
+              {categorias.length > 0 ? (
+                categorias.map((cat) => (
+                  <option key={cat.id} value={cat.nombre}>
+                    {cat.nombre}
+                  </option>
+                ))
+              ) : (
+                <option value={CATEGORIA_POR_DEFECTO}>{CATEGORIA_POR_DEFECTO}</option>
+              )}
             </select>
           </div>
 
@@ -966,7 +1071,7 @@ export default function AdminProyectosApp() {
 
       {!cargando && proyectosList.length > 0 && (
         <div className="space-y-8">
-          {gruposConProyectos.map((grupo) => (
+          {gruposConProyectos.map((grupo, grupoIndex) => (
             <div key={grupo.categoria} className="space-y-3">
               <div className="flex items-center justify-between border-b border-border pb-2 pt-2">
                 <div className="flex items-center gap-2">
@@ -978,9 +1083,35 @@ export default function AdminProyectosApp() {
                     {grupo.items.length} {grupo.items.length === 1 ? "proyecto" : "proyectos"}
                   </span>
                 </div>
-                <span className="text-xs text-muted-subtle hidden sm:inline">
-                  Arrastra o usa las flechas para ordenar
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5" title="Cambiar orden de aparición de esta categoría">
+                    <button
+                      type="button"
+                      onClick={() => moverCategoriaPaso(grupo.categoria, -1)}
+                      disabled={grupoIndex === 0}
+                      aria-label={`Subir categoría ${grupo.categoria}`}
+                      className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moverCategoriaPaso(grupo.categoria, 1)}
+                      disabled={grupoIndex === gruposConProyectos.length - 1}
+                      aria-label={`Bajar categoría ${grupo.categoria}`}
+                      className="p-1 rounded text-muted hover:text-foreground hover:bg-surface-hover disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                  <span className="text-xs text-muted-subtle hidden sm:inline">
+                    Arrastra o usa las flechas para ordenar
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -1174,6 +1305,15 @@ export default function AdminProyectosApp() {
           ))}
         </div>
       )}
+
+      <ModalCategorias
+        isOpen={modalCategoriasAbierto}
+        onClose={() => setModalCategoriasAbierto(false)}
+        categorias={categorias}
+        onCategoriasChange={setCategorias}
+        onCategoriaRenombrada={handleCategoriaRenombrada}
+        onCategoriaEliminada={handleCategoriaEliminada}
+      />
     </div>
   );
 }
