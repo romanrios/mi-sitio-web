@@ -5,6 +5,7 @@ import {
   obtenerYoutubeEmbedUrl,
   ProyectoGaleriaItem,
 } from "@/lib/proyectos-utils";
+import { useModalHistory } from "@/lib/use-modal-history";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
@@ -25,6 +26,13 @@ export default function ProyectoLightbox({
   indiceActivo,
   onCambiarIndice,
 }: ProyectoLightboxProps) {
+  // Soporte para salir del visor ampliado con el botón Atrás del navegador o gestos
+  useModalHistory({
+    isOpen,
+    onClose,
+    id: "lightbox",
+  });
+
   const [isZoomed, setIsZoomed] = useState(false);
   const [prevIndice, setPrevIndice] = useState(indiceActivo);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);

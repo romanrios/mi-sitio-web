@@ -2,6 +2,7 @@
 
 import Spinner from "@/components/ui/Spinner";
 import { ProyectoCategoria } from "@/lib/categorias";
+import { useModalHistory } from "@/lib/use-modal-history";
 import { useState } from "react";
 
 type ModalCategoriasProps = {
@@ -21,6 +22,13 @@ export default function ModalCategorias({
   onCategoriaRenombrada,
   onCategoriaEliminada,
 }: ModalCategoriasProps) {
+  // Soporte para salir con el botón Atrás del navegador
+  useModalHistory({
+    isOpen,
+    onClose,
+    id: "categorias",
+  });
+
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [creando, setCreando] = useState(false);
   const [errorCrear, setErrorCrear] = useState("");

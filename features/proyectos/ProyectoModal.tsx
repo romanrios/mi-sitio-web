@@ -7,6 +7,7 @@ import {
   ProyectoGaleriaItem,
   ProyectoTagItem,
 } from "@/lib/proyectos-utils";
+import { useModalHistory } from "@/lib/use-modal-history";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import ProyectoLightbox from "./ProyectoLightbox";
@@ -34,6 +35,13 @@ export default function ProyectoModal({
 }: ProyectoModalProps) {
   const [indiceActivo, setIndiceActivo] = useState(0);
   const [lightboxAbierto, setLightboxAbierto] = useState(false);
+
+  // Soporte para salir con el botón Atrás del navegador o gestos en dispositivos móviles
+  useModalHistory({
+    isOpen,
+    onClose,
+    id: "proyecto",
+  });
 
   // Si la galería está vacía, usamos la imagen principal como único elemento
   const itemsGaleria: ProyectoGaleriaItem[] =
