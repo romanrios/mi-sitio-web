@@ -1,5 +1,6 @@
 import { db } from "@/app/db";
 import { heroDefault, HeroData } from "@/content/hero";
+import HeroOrganismBackground from "@/features/hero/HeroOrganismBackground";
 import Image from "next/image";
 
 export default async function HeroSection() {
@@ -32,16 +33,19 @@ export default async function HeroSection() {
 
         {/* Resplandor sutil de apoyo detrás del área principal */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] sm:w-[480px] h-[200px] sm:h-[280px] rounded-full bg-cyan-400/15 dark:bg-accent/15 blur-3xl sm:blur-[100px] opacity-60 dark:opacity-35" />
-
-        {/* Transición suave hacia el borde inferior */}
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-hero-bg to-transparent" />
       </div>
+
+      {/* Matriz interactiva de puntos con comportamiento de organismo vivo */}
+      <HeroOrganismBackground />
 
       <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col justify-center">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 text-center sm:text-left">
           {/* Foto de perfil enmarcada en círculo */}
           <div className="relative shrink-0">
-            <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-border-strong shadow-lg ring-4 ring-accent/15 bg-surface">
+            <div
+              data-hero-clearance="circle"
+              className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-border-strong shadow-lg ring-4 ring-accent/15 bg-surface"
+            >
               <Image
                 src={heroData.imagenUrl}
                 alt={heroData.titulo}
@@ -54,7 +58,10 @@ export default async function HeroSection() {
           </div>
 
           {/* Título principal y Subtítulo */}
-          <div className="flex flex-col justify-center flex-1">
+          <div
+            data-hero-clearance="text"
+            className="flex flex-col justify-center flex-1"
+          >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight text-pretty">
               {heroData.titulo}
             </h1>
@@ -65,12 +72,18 @@ export default async function HeroSection() {
         </div>
 
         {/* Texto de párrafo principal */}
-        <p className="text-sm sm:text-base text-muted leading-relaxed whitespace-pre-line text-pretty">
+        <p
+          data-hero-clearance="text"
+          className="text-sm sm:text-base text-muted leading-relaxed whitespace-pre-line text-pretty"
+        >
           {heroData.descripcion}
         </p>
 
         {/* Accesos directos a Proyectos y Contacto */}
-        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 justify-center sm:justify-start">
+        <div
+          data-hero-clearance="box"
+          className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 justify-center sm:justify-start"
+        >
           <a
             href="#proyectos"
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-accent-foreground font-medium text-sm transition-all shadow-xs group cursor-pointer"
@@ -114,7 +127,10 @@ export default async function HeroSection() {
       </div>
 
       {/* Indicador de scroll para explorar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+      <div
+        data-hero-clearance="box"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center"
+      >
         <a
           href="#experiencia"
           className="text-xs font-medium text-muted hover:text-foreground flex flex-col items-center gap-1.5 transition-colors group cursor-pointer"
