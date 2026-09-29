@@ -79,7 +79,7 @@ export default async function HeroSection() {
           {heroData.descripcion}
         </p>
 
-        {/* Accesos directos a Proyectos y Contacto */}
+        {/* Accesos directos a Proyectos, CV y Contacto */}
         <div
           data-hero-clearance="box"
           className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 justify-center sm:justify-start"
@@ -100,6 +100,29 @@ export default async function HeroSection() {
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+          </a>
+
+          <a
+            href="/api/cv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-border-strong/60 hover:border-accent bg-surface/70 hover:bg-surface-hover text-foreground font-medium text-sm transition-all shadow-xs group cursor-pointer"
+            title="Abrir CV en PDF en una nueva pestaña"
+          >
+            <span>Descargar CV</span>
+            <svg
+              className="w-4 h-4 text-muted group-hover:text-accent transition-colors"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
               />
             </svg>
           </a>
