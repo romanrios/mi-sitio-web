@@ -45,6 +45,11 @@ export type CvCurso = {
   periodo: string;
 };
 
+export type CvIdioma = {
+  idioma: string;
+  nivel: string;
+};
+
 export type CvData = {
   nombre: string;
   rol: string;
@@ -55,4 +60,5 @@ export type CvData = {
   academicas: CvExperiencia[];
   habilidades: CvHabilidadSeccion[];
   cursos: CvCurso[];
+  idiomas: CvIdioma[];
 };

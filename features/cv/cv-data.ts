@@ -13,6 +13,7 @@ import {
   CvData,
   CvExperiencia,
   CvHabilidadSeccion,
+  CvIdioma,
 } from "./cv-types";
 
 function formatearDescripcionCurso(desc?: string | null): string | null {
@@ -24,7 +25,7 @@ function formatearDescripcionCurso(desc?: string | null): string | null {
       .split("\n")
       .map((l) => l.replace(/^[■•-]\s*/, "").trim())
       .filter(Boolean);
-    return lineas.slice(0, 3).join(" · ");
+    return lineas.join(" · ");
   }
   return trimmed;
 }
@@ -223,6 +224,11 @@ export async function getCvData(): Promise<CvData> {
         .trim()
     : "Desarrollador de Software & Diseñador de Comunicación Visual";
 
+  const idiomas: CvIdioma[] = [
+    { idioma: "Español", nivel: "Nativo" },
+    { idioma: "Inglés", nivel: "B2" },
+  ];
+
   return {
     nombre: heroData.titulo || "Román Ríos",
     rol,
@@ -235,5 +241,6 @@ export async function getCvData(): Promise<CvData> {
     academicas,
     habilidades: habilidadesSecciones,
     cursos,
+    idiomas,
   };
 }
