@@ -111,7 +111,7 @@ export default async function HeroSection() {
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-border-strong/60 hover:border-accent bg-surface/70 hover:bg-surface-hover text-foreground font-medium text-sm transition-all shadow-xs group cursor-pointer"
             title="Abrir CV en PDF en una nueva pestaña"
           >
-            <span>Descargar CV</span>
+            <span>CV (PDF)</span>
             <svg
               className="w-4 h-4 text-muted group-hover:text-accent transition-colors"
               fill="none"

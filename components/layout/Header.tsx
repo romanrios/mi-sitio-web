@@ -97,29 +97,6 @@ export default function Header() {
 
           <div className="h-4 w-px bg-border" />
 
-          <a
-            href="/api/cv"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface hover:bg-surface-hover hover:border-accent text-xs font-medium text-foreground transition-colors cursor-pointer"
-            title="Abrir CV en PDF en nueva pestaña"
-          >
-            <svg
-              className="w-3.5 h-3.5 text-accent"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-            <span>CV (PDF)</span>
-          </a>
-
           <ThemeToggle />
         </div>
 
@@ -183,28 +160,6 @@ export default function Header() {
                 {link.label}
               </a>
             ))}
-            <a
-              href="/api/cv"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMenuAbierto(false)}
-              className="px-3 py-2.5 rounded-md text-base font-medium text-accent hover:bg-surface-hover transition-colors flex items-center justify-between"
-            >
-              <span>Ver CV (PDF)</span>
-              <svg
-                className="w-4 h-4 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
           </nav>
         </div>
       )}
