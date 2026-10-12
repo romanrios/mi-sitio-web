@@ -1,19 +1,9 @@
-import { db } from "@/app/db";
-import { heroDefault, HeroData } from "@/content/hero";
 import HeroOrganismBackground from "@/features/hero/HeroOrganismBackground";
+import { getHeroData } from "@/features/hero/getHeroData";
 import Image from "next/image";
 
 export default async function HeroSection() {
-  let heroData: HeroData = heroDefault;
-
-  try {
-    const registro = await db.query.hero.findFirst();
-    if (registro) {
-      heroData = registro;
-    }
-  } catch (error) {
-    console.error("Error al cargar Hero de la base de datos:", error);
-  }
+  const heroData = await getHeroData();
 
   return (
     <section

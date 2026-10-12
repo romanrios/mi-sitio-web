@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
-
+import { getHeroData } from "@/features/hero/getHeroData";
 
 export const alt = "Román Ríos — Desarrollo de Software & Diseño Visual";
+export const dynamic = "force-dynamic";
 export const size = {
   width: 1200,
   height: 630,
@@ -9,8 +10,7 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const avatarUrl =
-    "https://res.cloudinary.com/dzriqyi6d/image/upload/v1789746908/mi-sitio-web/hero/pivgn8t7n6ro4touhkvx.png";
+  const heroData = await getHeroData();
 
   return new ImageResponse(
     (
@@ -124,8 +124,8 @@ export default async function OpenGraphImage() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={avatarUrl}
-              alt="Román Ríos"
+              src={heroData.imagenUrl}
+              alt={heroData.titulo}
               style={{
                 width: "100%",
                 height: "100%",
