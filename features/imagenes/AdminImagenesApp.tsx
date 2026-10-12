@@ -5,6 +5,8 @@ import Spinner from "@/components/ui/Spinner";
 import { formatearBytes, ImagenItem } from "@/lib/imagenes-utils";
 import { useEffect, useMemo, useState } from "react";
 
+const IMAGENES_POR_PAGINA = 20;
+
 export default function AdminImagenesApp() {
   const [imagenes, setImagenes] = useState<ImagenItem[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -14,6 +16,7 @@ export default function AdminImagenesApp() {
   const [filtroEstado, setFiltroEstado] = useState<"todas" | "huerfanas" | "en_uso">("todas");
   const [filtroCarpeta, setFiltroCarpeta] = useState<string>("todas");
   const [busqueda, setBusqueda] = useState<string>("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   // Selección múltiple
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
@@ -110,6 +113,25 @@ export default function AdminImagenesApp() {
       return true;
     });
   }, [imagenes, filtroEstado, filtroCarpeta, busqueda]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(imagenesFiltradas.length / IMAGENES_POR_PAGINA)
+  );
+  const paginaVisible = Math.min(paginaActual, totalPaginas);
+  const indiceInicio = (paginaVisible - 1) * IMAGENES_POR_PAGINA;
+  const imagenesPagina = imagenesFiltradas.slice(
+    indiceInicio,
+    indiceInicio + IMAGENES_POR_PAGINA
+  );
+  const primeraPaginaNumerada = Math.max(
+    1,
+    Math.min(paginaVisible - 2, totalPaginas - 4)
+  );
+  const paginasNumeradas = Array.from(
+    { length: Math.min(5, totalPaginas) },
+    (_, index) => primeraPaginaNumerada + index
+  );
 
   // Contadores y métricas
   const totalImagenes = imagenes.length;
@@ -274,7 +296,10 @@ export default function AdminImagenesApp() {
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setFiltroEstado("todas")}
+              onClick={() => {
+                setFiltroEstado("todas");
+                setPaginaActual(1);
+              }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filtroEstado === "todas"
                   ? "bg-accent text-accent-foreground shadow-xs"
@@ -285,7 +310,10 @@ export default function AdminImagenesApp() {
             </button>
             <button
               type="button"
-              onClick={() => setFiltroEstado("huerfanas")}
+              onClick={() => {
+                setFiltroEstado("huerfanas");
+                setPaginaActual(1);
+              }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filtroEstado === "huerfanas"
                   ? "bg-rose-500 text-white shadow-xs"
@@ -296,7 +324,10 @@ export default function AdminImagenesApp() {
             </button>
             <button
               type="button"
-              onClick={() => setFiltroEstado("en_uso")}
+              onClick={() => {
+                setFiltroEstado("en_uso");
+                setPaginaActual(1);
+              }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filtroEstado === "en_uso"
                   ? "bg-emerald-600 text-white shadow-xs"
@@ -312,7 +343,10 @@ export default function AdminImagenesApp() {
             {carpetasDisponibles.length > 0 && (
               <select
                 value={filtroCarpeta}
-                onChange={(e) => setFiltroCarpeta(e.target.value)}
+                onChange={(e) => {
+                  setFiltroCarpeta(e.target.value);
+                  setPaginaActual(1);
+                }}
                 className="text-xs border border-border-strong bg-surface rounded-md px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               >
                 <option value="todas">Todas las carpetas</option>
@@ -327,7 +361,10 @@ export default function AdminImagenesApp() {
             <input
               type="text"
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => {
+                setBusqueda(e.target.value);
+                setPaginaActual(1);
+              }}
               placeholder="Buscar por nombre..."
               className="text-xs border border-border-strong bg-surface rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-faint focus:outline-none focus:ring-1 focus:ring-ring w-full max-w-[200px]"
             />
@@ -422,7 +459,7 @@ export default function AdminImagenesApp() {
       {/* Grilla Responsive de Imágenes (CSS Grid) */}
       {!cargando && imagenesFiltradas.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {imagenesFiltradas.map((img) => {
+          {imagenesPagina.map((img) => {
             const estaSeleccionada = seleccionados.has(img.public_id);
             const nombreArchivo = img.public_id.split("/").pop() || img.public_id;
 
@@ -539,6 +576,57 @@ export default function AdminImagenesApp() {
             );
           })}
         </div>
+      )}
+
+      {!cargando && imagenesFiltradas.length > 0 && (
+        <nav
+          aria-label="Paginación de imágenes"
+          className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        >
+          <p className="text-xs text-muted" aria-live="polite">
+            Mostrando {indiceInicio + 1}–
+            {Math.min(indiceInicio + IMAGENES_POR_PAGINA, imagenesFiltradas.length)} de{" "}
+            {imagenesFiltradas.length} imágenes
+          </p>
+          {totalPaginas > 1 && (
+            <div className="flex items-center justify-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPaginaActual(paginaVisible - 1)}
+                disabled={paginaVisible === 1}
+                className="px-3 py-1.5 rounded-md text-xs font-medium border border-border text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Página anterior"
+              >
+                Anterior
+              </button>
+              {paginasNumeradas.map((pagina) => (
+                <button
+                  key={pagina}
+                  type="button"
+                  onClick={() => setPaginaActual(pagina)}
+                  aria-current={paginaVisible === pagina ? "page" : undefined}
+                  aria-label={`Página ${pagina}`}
+                  className={`min-w-8 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    paginaVisible === pagina
+                      ? "bg-accent text-accent-foreground"
+                      : "border border-border text-foreground hover:bg-surface-hover"
+                  }`}
+                >
+                  {pagina}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setPaginaActual(paginaVisible + 1)}
+                disabled={paginaVisible === totalPaginas}
+                className="px-3 py-1.5 rounded-md text-xs font-medium border border-border text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Página siguiente"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </nav>
       )}
     </div>
   );
