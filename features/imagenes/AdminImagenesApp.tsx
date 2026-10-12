@@ -366,7 +366,7 @@ export default function AdminImagenesApp() {
                 setPaginaActual(1);
               }}
               placeholder="Buscar por nombre..."
-              className="text-xs border border-border-strong bg-surface rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-faint focus:outline-none focus:ring-1 focus:ring-ring w-full max-w-[200px]"
+              className="text-xs border border-border-strong bg-surface rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-faint focus:outline-none focus:ring-1 focus:ring-ring w-full max-w-50"
             />
           </div>
         </div>
